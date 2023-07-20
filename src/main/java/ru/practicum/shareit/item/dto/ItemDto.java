@@ -7,7 +7,6 @@ import org.apache.coyote.Request;
 import ru.practicum.shareit.user.User;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 
 @Builder
 @Data

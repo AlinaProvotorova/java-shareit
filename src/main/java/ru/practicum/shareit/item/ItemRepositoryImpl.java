@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.User;
 
@@ -32,10 +31,10 @@ public class ItemRepositoryImpl implements ItemRepository {
     public List<Item> searchBy(String text) {
         return ITEMS.values().stream()
                 .filter(item -> (item.getName() != null && item.getName().toLowerCase().contains(text.toLowerCase())) ||
-                                (item.getDescription() != null && item.getDescription()
-                                        .toLowerCase()
-                                        .contains(text.toLowerCase())) &&
-                                        item.getAvailable()
+                        (item.getDescription() != null && item.getDescription()
+                                .toLowerCase()
+                                .contains(text.toLowerCase())) &&
+                                item.getAvailable()
                 )
                 .filter(item -> item.getAvailable() != null && item.getAvailable())
                 .collect(Collectors.toList());
