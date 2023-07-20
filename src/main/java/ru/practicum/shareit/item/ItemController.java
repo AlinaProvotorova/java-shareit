@@ -1,12 +1,56 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.ItemDto;
 
-/**
- * TODO Sprint add-controllers.
- */
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
+import java.util.List;
+
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/items")
 public class ItemController {
+    private final ItemService itemService;
+
+    @GetMapping("/all")
+    public List<ItemDto> getAllItems() {
+        return itemService.getAllItems();
+    }
+
+    @GetMapping
+    public List<ItemDto> getOwnersItems(@RequestHeader(value = "X-Sharer-User-Id") Integer userId) {
+        return itemService.getOwnersItems(userId);
+    }
+
+    @GetMapping("/{id}")
+    public ItemDto getItemById(@PathVariable @Positive Integer id) {
+        return itemService.getItemById(id);
+    }
+
+    @GetMapping("/search")
+    public List<ItemDto> searchBy(@RequestParam(value = "text") @NotBlank String text) {
+        return itemService.searchBy(text);
+    }
+
+    @PostMapping
+    public ItemDto saveNewItem(@RequestHeader(value = "X-Sharer-User-Id") Integer userId,
+                               @Valid @RequestBody ItemDto item) {
+        return itemService.saveNewItem(userId, item);
+    }
+
+    @PatchMapping("/{itemId}")
+    public ItemDto updateItem(@PathVariable @Positive Integer itemId,
+                              @RequestHeader(value = "X-Sharer-User-Id") Integer userId,
+                              @RequestBody ItemDto item) {
+        return itemService.updateItem(itemId, userId, item);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteItem(@PathVariable @Positive Integer id) {
+        itemService.deleteItem(id);
+        return String.format("Вещь для бронирования с ID %d удалена", id);
+    }
 }

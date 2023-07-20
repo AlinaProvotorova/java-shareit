@@ -1,25 +1,17 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.item;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
 import org.apache.coyote.Request;
 import ru.practicum.shareit.user.User;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-
 @Builder
 @Data
-public class ItemDto {
+public class Item {
     private Integer id;
-    @NotBlank
     private String name;
-    @NotBlank
     private String description;
     private Boolean available;
-    @JsonIgnore
     private User owner;
-    @JsonIgnore
     private Request request;
 }
