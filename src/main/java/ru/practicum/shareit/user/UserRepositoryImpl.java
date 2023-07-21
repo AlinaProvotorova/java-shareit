@@ -18,6 +18,7 @@ public class UserRepositoryImpl implements UserRepository {
         return new ArrayList<>(users.values());
     }
 
+
     @Override
     public Map<Integer, User> getUsersMap() {
         return users;
