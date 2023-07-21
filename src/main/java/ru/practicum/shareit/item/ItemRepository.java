@@ -3,10 +3,13 @@ package ru.practicum.shareit.item;
 import ru.practicum.shareit.user.User;
 
 import java.util.List;
+import java.util.Map;
 
 interface ItemRepository {
 
     List<Item> getAllItems();
+
+    Map<Integer, Item> getItemsMap();
 
     List<Item> getOwnersItems(User user);
 

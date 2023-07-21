@@ -13,20 +13,27 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .request(item.getRequest())
                 .build();
     }
 
-    public static Item dtoToItem(ItemDto item) {
-        if (item == null) {
+    public static Item dtoToItem(ItemDto itemDto) {
+        if (itemDto == null) {
             throw new IllegalArgumentException("ItemDto не может быть null.");
         }
         return Item.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                .request(item.getRequest())
+                .name(itemDto.getName())
+                .description(itemDto.getDescription())
+                .available(itemDto.getAvailable())
                 .build();
+    }
+
+    public static Item dtoToItem(ItemDto itemDto, Item item) {
+        if (itemDto == null) {
+            throw new IllegalArgumentException("ItemDto не может быть null.");
+        }
+        item.setName(itemDto.getName() != null && !itemDto.getName().isBlank() ? itemDto.getName() : item.getName());
+        item.setDescription(itemDto.getDescription() != null && !itemDto.getDescription().isBlank() ? itemDto.getDescription() : item.getDescription());
+        item.setAvailable(itemDto.getAvailable() != null ? itemDto.getAvailable() : item.getAvailable());
+        return item;
     }
 }

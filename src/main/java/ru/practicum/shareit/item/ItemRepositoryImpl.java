@@ -12,12 +12,17 @@ import java.util.stream.Collectors;
 @Repository
 public class ItemRepositoryImpl implements ItemRepository {
 
-    private static final Map<Integer, Item> ITEMS = new HashMap<>();
-    Integer counterId = 0;
+    private final Map<Integer, Item> ITEMS = new HashMap<>();
+    private Integer counterId = 0;
 
     @Override
     public List<Item> getAllItems() {
         return new ArrayList<>(ITEMS.values());
+    }
+
+    @Override
+    public Map<Integer, Item> getItemsMap() {
+        return ITEMS;
     }
 
     @Override
@@ -55,18 +60,8 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Item updateItem(Integer itemId, Item item) {
-        Item updated = ITEMS.get(itemId);
-        if (item.getName() != null && !item.getName().isBlank()) {
-            updated.setName(item.getName());
-        }
-        if (item.getDescription() != null && !item.getDescription().isBlank()) {
-            updated.setDescription(item.getDescription());
-        }
-        if (item.getAvailable() != null) {
-            updated.setAvailable(item.getAvailable());
-        }
-        ITEMS.put(itemId, updated);
-        return updated;
+        ITEMS.put(itemId, item);
+        return item;
     }
 
     @Override

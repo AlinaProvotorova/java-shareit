@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(Integer id) {
-        UserValidate.checkUserId(userRepository.getAllUsers(), id);
+        UserValidate.checkUserId(userRepository.getUsersMap().keySet(), id);
         log.info("Пользователь с ID {} получен .", id);
         return UserMapper.toUserDto(userRepository.getUserById(id));
     }
@@ -40,21 +40,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(Integer id, UserDto userDto) {
-        UserValidate.checkUserId(userRepository.getAllUsers(), id);
+        UserValidate.checkUserId(userRepository.getUsersMap().keySet(), id);
+        User user = userRepository.getUsersMap().get(id);
         UserValidate.checkEmail(
                 userRepository.getAllUsers().stream()
-                        .filter(user -> !user.getId().equals(id))
+                        .filter(u -> !u.getId().equals(id))
                         .collect(Collectors.toList()),
                 userDto
         );
-        User updateUser = userRepository.updateUser(id, UserMapper.dtoToUser(userDto));
+        User updateUser = userRepository.updateUser(id, UserMapper.dtoToUser(userDto, user));
         log.info("Данные пользователя обновлёны {}.", updateUser);
         return UserMapper.toUserDto(updateUser);
     }
 
     @Override
     public void deleteUser(Integer id) {
-        UserValidate.checkUserId(userRepository.getAllUsers(), id);
+        UserValidate.checkUserId(userRepository.getUsersMap().keySet(), id);
         log.info("Пользователь с ID {} удален .", id);
         userRepository.deleteUser(id);
     }

@@ -9,11 +9,9 @@ import java.time.LocalDate;
 
 @Data
 public class BookingDto {
-    Long id;
-    LocalDate start;
-    LocalDate end;
-    Item item;
-    User booker;
-    BookingStatus status;
+    private Long id;
+    private LocalDate start;
+    private LocalDate end;
+    private BookingStatus status;
 }
 

@@ -6,13 +6,13 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 
-import java.util.List;
+import java.util.Set;
 
 @Slf4j
 public class ItemValidate {
-    static String NOT_FOUND_ID = "Вещи с ID %d не существует";
-    static String NOT_FOUND_OWNER = "У пользователя с ID %d вещи с ID %d не существует";
-    static String NOT_NULL_AVAILABLE = "Поле available не может быть пустым";
+    static final String NOT_FOUND_ID = "Вещи с ID %d не существует";
+    static final String NOT_FOUND_OWNER = "У пользователя с ID %d вещи с ID %d не существует";
+    static final String NOT_NULL_AVAILABLE = "Поле available не может быть пустым";
 
     public static void checkOwnerItem(Item item, Integer userid) {
         if (!(item.getOwner().getId().equals(userid))) {
@@ -21,10 +21,9 @@ public class ItemValidate {
         }
     }
 
-    public static void checkItemId(List<Item> items, Integer id) {
-        boolean userExists = items.stream().anyMatch(item -> item.getId().equals(id));
-        if (!userExists) {
-            log.info(NOT_FOUND_ID);
+    public static void checkItemId(Set<Integer> itemsId, Integer id) {
+        if (!itemsId.contains(id)) {
+            log.info(String.format(NOT_FOUND_ID, id));
             throw new NotFoundException(String.format(NOT_FOUND_ID, id));
         }
     }

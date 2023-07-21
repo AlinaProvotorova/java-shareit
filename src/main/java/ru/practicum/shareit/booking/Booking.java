@@ -8,12 +8,12 @@ import java.time.LocalDate;
 
 @Data
 public class Booking {
-    Long id;
-    LocalDate start;
-    LocalDate end;
-    Item item;
-    User booker;
-    BookingStatus status;
+    private Long id;
+    private LocalDate start;
+    private LocalDate end;
+    private Item item;
+    private User booker;
+    private BookingStatus status;
 
 }
 

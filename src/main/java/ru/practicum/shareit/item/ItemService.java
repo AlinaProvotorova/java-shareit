@@ -16,7 +16,7 @@ interface ItemService {
 
     ItemDto saveNewItem(Integer userId, ItemDto item);
 
-    ItemDto updateItem(Integer itemId, Integer userId, ItemDto item);
+    ItemDto updateItem(Integer itemId, Integer userId, ItemDto itemDto);
 
     void deleteItem(Integer id);
 }

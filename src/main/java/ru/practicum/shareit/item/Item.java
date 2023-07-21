@@ -1,12 +1,14 @@
 package ru.practicum.shareit.item;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.coyote.Request;
 import ru.practicum.shareit.user.User;
 
 @Builder
-@Data
+@Getter
+@Setter
 public class Item {
     private Integer id;
     private String name;
