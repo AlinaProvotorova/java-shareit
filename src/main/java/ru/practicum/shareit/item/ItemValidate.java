@@ -10,9 +10,9 @@ import java.util.Set;
 
 @Slf4j
 public class ItemValidate {
-    static final String NOT_FOUND_ID = "Вещи с ID %d не существует";
-    static final String NOT_FOUND_OWNER = "У пользователя с ID %d вещи с ID %d не существует";
-    static final String NOT_NULL_AVAILABLE = "Поле available не может быть пустым";
+    private static final String NOT_FOUND_ID = "Вещи с ID %d не существует";
+    private static final String NOT_FOUND_OWNER = "У пользователя с ID %d вещи с ID %d не существует";
+    private static final String NOT_NULL_AVAILABLE = "Поле available не может быть пустым";
 
     public static void checkOwnerItem(Item item, Integer userid) {
         if (!(item.getOwner().getId().equals(userid))) {
