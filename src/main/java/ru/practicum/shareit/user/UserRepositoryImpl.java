@@ -10,40 +10,40 @@ import java.util.Map;
 @Repository
 public class UserRepositoryImpl implements UserRepository {
 
-    private final Map<Integer, User> USERS = new HashMap<>();
+    private final Map<Integer, User> users = new HashMap<>();
     private static Integer counterId = 0;
 
     @Override
     public List<User> getAllUsers() {
-        return new ArrayList<>(USERS.values());
+        return new ArrayList<>(users.values());
     }
 
     @Override
     public Map<Integer, User> getUsersMap() {
-        return USERS;
+        return users;
     }
 
     @Override
     public User getUserById(Integer id) {
-        return USERS.get(id);
+        return users.get(id);
     }
 
     @Override
     public User saveNewUser(User user) {
         user.setId(++counterId);
-        USERS.put(counterId, user);
+        users.put(counterId, user);
         return user;
     }
 
     @Override
     public User updateUser(Integer id, User user) {
-        USERS.put(id, user);
+        users.put(id, user);
         return user;
     }
 
     @Override
     public void deleteUser(Integer id) {
-        USERS.remove(id);
+        users.remove(id);
     }
 
 }
