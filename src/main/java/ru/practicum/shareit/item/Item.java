@@ -1,19 +1,19 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.item;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.validation.constraints.NotBlank;
+import org.apache.coyote.Request;
+import ru.practicum.shareit.user.User;
 
 @Builder
 @Getter
 @Setter
-public class ItemDto {
+public class Item {
     private Integer id;
-    @NotBlank
     private String name;
-    @NotBlank
     private String description;
     private Boolean available;
+    private User owner;
+    private Request request;
 }
