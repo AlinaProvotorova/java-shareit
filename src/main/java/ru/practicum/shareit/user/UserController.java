@@ -24,7 +24,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserDto getUserById(@PathVariable @Positive Integer id) {
+    public UserDto getUserById(@PathVariable @Positive Long id) {
         return userService.getUserById(id);
     }
 
@@ -34,12 +34,12 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public UserDto updateUser(@PathVariable @Positive Integer id, @RequestBody UserDto user) {
+    public UserDto updateUser(@PathVariable @Positive Long id, @RequestBody UserDto user) {
         return userService.updateUser(id, user);
     }
 
     @DeleteMapping("/{id}")
-    public String deleteUser(@PathVariable @Positive Integer id) {
+    public String deleteUser(@PathVariable @Positive Long id) {
         userService.deleteUser(id);
         return String.format("Пользователь %d удален", id);
     }

@@ -1,10 +1,8 @@
 package ru.practicum.shareit.user.dto;
 
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserRepositoryImpl;
 
 public class UserMapper {
-    private static final UserRepositoryImpl userRepository = new UserRepositoryImpl();
 
     public static UserDto toUserDto(User user) {
         if (user == null) {

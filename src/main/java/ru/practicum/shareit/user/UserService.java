@@ -8,11 +8,11 @@ interface UserService {
 
     List<UserDto> getAllUsers();
 
-    UserDto getUserById(Integer id);
+    UserDto getUserById(Long id);
 
     UserDto saveNewUser(UserDto user);
 
-    UserDto updateUser(Integer id, UserDto userDto);
+    UserDto updateUser(Long id, UserDto userDto);
 
-    void deleteUser(Integer id);
+    void deleteUser(Long id);
 }
