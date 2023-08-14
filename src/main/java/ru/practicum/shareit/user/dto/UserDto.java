@@ -14,7 +14,8 @@ public class UserDto {
     private Long id;
     @NotBlank
     private String name;
-    @Email
+    @Email(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$",
+            message = "Email не корректный")
     @NotBlank
     private String email;
 }

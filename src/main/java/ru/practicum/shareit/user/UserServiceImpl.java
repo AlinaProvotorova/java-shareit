@@ -2,7 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exceptions.EmailDuplicateException;
@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
             User newUser = userRepository.save(UserMapper.dtoToUser(user));
             log.info("Пользователь c ID {} создан.", newUser.getId());
             return UserMapper.toUserDto(newUser);
-        } catch (DataIntegrityViolationException e) {
+        } catch (ConstraintViolationException e) {
             throw new EmailDuplicateException(
                     String.format(EMAIL_DUPLICATE, user.getEmail())
             );
@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
             User updateUser = userRepository.saveAndFlush(UserMapper.dtoToUser(userDto, user));
             log.info("Данные пользователя обновлёны {}.", updateUser);
             return UserMapper.toUserDto(updateUser);
-        } catch (DataIntegrityViolationException e) {
+        } catch (ConstraintViolationException e) {
             throw new EmailDuplicateException(
                     String.format(EMAIL_DUPLICATE, userDto.getEmail())
             );
