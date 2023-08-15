@@ -61,3 +61,13 @@ CREATE TABLE IF NOT EXISTS comments
     CONSTRAINT FK_COMMENT_AUTHOR FOREIGN KEY (author_id) references users
         on delete cascade on update cascade
 );
+
+CREATE INDEX idx_user_email ON users (email);
+CREATE INDEX idx_request_requester ON request (requester_id);
+CREATE INDEX idx_item_owner ON items (owner_id);
+CREATE INDEX idx_item_request ON items (request_id);
+CREATE INDEX idx_booking_item ON bookings (item_id);
+CREATE INDEX idx_booking_booker ON bookings (booker_id);
+CREATE INDEX idx_booking_start_end_status ON bookings (start_date, end_date, status);
+CREATE INDEX idx_comment_item ON comments (item_id);
+CREATE INDEX idx_comment_author ON comments (author_id);

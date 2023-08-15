@@ -18,12 +18,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.shareit.utils.Constants.*;
+import static ru.practicum.shareit.utils.Constants.BOOKING_NOT_FOUND;
+import static ru.practicum.shareit.utils.Constants.ITEM_NOT_FOUND;
+import static ru.practicum.shareit.utils.Constants.USER_NOT_FOUND;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
