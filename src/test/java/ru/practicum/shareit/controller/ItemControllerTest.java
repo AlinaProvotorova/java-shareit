@@ -3,7 +3,6 @@ package ru.practicum.shareit.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -23,7 +22,6 @@ import ru.practicum.shareit.item.Comment;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemController;
 import ru.practicum.shareit.item.ItemService;
-import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentMapper;
 import ru.practicum.shareit.item.dto.CommentResponseDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -35,6 +33,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -69,21 +70,66 @@ public class ItemControllerTest {
             .build();
 
     @Test
+    @DisplayName("Тест на эндпоинт @GetMapping на получение всех Item для User Owner")
+    @SneakyThrows
+    void geAllItemsTest() {
+        mockMvc.perform(MockMvcRequestBuilders.get("/items/all", 3, 2))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk());
+        verify(itemService).getAllItems();
+    }
+
+    @Test
+    @DisplayName("Тест на эндпоинт @GetMapping на получение всех Item для User Owner")
+    @SneakyThrows
+    void getOwnersItemsTest() {
+        User owner = mockUser1;
+        mockItem2.setOwner(owner);
+        mockMvc.perform(MockMvcRequestBuilders.get("/items?from={from}&size={size}", 3, 2)
+                        .header("X-Sharer-User-Id", owner.getId()))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk());
+        verify(itemService).getOwnersItems(3, 2, owner.getId());
+    }
+
+    @Test
+    @DisplayName("Тест на эндпоинт @GetMapping на получение Item по ID")
+    @SneakyThrows
+    void getItemByIdTest() {
+        ItemDto itemDto = ItemMapper.toItemDto(mockItem1);
+        ItemResponseDto itemResponseDto = ItemResponseDto.create(mockBooking1, mockBooking2, mockItem1, List.of());
+        when(itemService.saveNewItem(Mockito.any(), Mockito.any())).thenReturn(itemDto);
+        when((itemService.getItemById(Mockito.any(), Mockito.any()))).thenReturn(itemResponseDto);
+        itemService.saveNewItem(1L, itemDto);
+        mockMvc.perform(MockMvcRequestBuilders.get("/items/{itemId}", itemDto.getId())
+                        .header("X-Sharer-User-Id", 1L))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk());
+        verify(itemService).getItemById(itemDto.getId(), 1L);
+    }
+
+    @Test
+    @DisplayName("Тест на эндпоинт @GetMapping на поиск всех Item по текстовому запросу")
+    @SneakyThrows
+    void searchByTest() {
+        mockMvc.perform(MockMvcRequestBuilders.get("/items/search")
+                        .param("from", "0")
+                        .param("size", "10")
+                        .param("text", "Серп")
+                        .header("X-Sharer-User-Id", mockUser1.getId()))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk());
+        verify(itemService).searchBy("Серп", 1L, 0, 10);
+    }
+
+    @Test
     @DisplayName("Тест на эндпоинт @PostMapping создания Item")
     @SneakyThrows
-    void itemCreateTest() {
-        Item item = mockItem1;
+    void saveNewItemTest() {
         ItemDto itemDto = ItemMapper.toItemDto(mockItem1);
-        ItemResponseDto itemResponseDto = ItemResponseDto.create(mockBooking1, mockBooking2, item, List.of());
-
-        Mockito
-                .when(itemService.saveNewItem(Mockito.any(), Mockito.any()))
-                .thenReturn(itemDto);
-
-        Mockito
-                .when((itemService.getItemById(Mockito.any(), Mockito.any())))
-                .thenReturn(itemResponseDto);
-
+        ItemResponseDto itemResponseDto = ItemResponseDto.create(mockBooking1, mockBooking2, mockItem1, List.of());
+        when(itemService.saveNewItem(Mockito.any(), Mockito.any())).thenReturn(itemDto);
+        when((itemService.getItemById(Mockito.any(), Mockito.any()))).thenReturn(itemResponseDto);
         mockMvc.perform(MockMvcRequestBuilders.post("/items")
                         .header("X-Sharer-User-Id", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -92,59 +138,20 @@ public class ItemControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
-
-        Mockito.verify(itemService).saveNewItem(1L, itemDto);
-    }
-
-    @Test
-    @DisplayName("Тест на эндпоинт @GetMapping на получение Item по ID")
-    @SneakyThrows
-    void getByIdTest() {
-        Item item = mockItem1;
-        ItemDto itemDto = ItemMapper.toItemDto(mockItem1);
-        ItemResponseDto itemResponseDto = ItemResponseDto.create(mockBooking1, mockBooking2, item, List.of());
-
-        Mockito
-                .when(itemService.saveNewItem(Mockito.any(), Mockito.any()))
-                .thenReturn(itemDto);
-
-        Mockito
-                .when((itemService.getItemById(Mockito.any(), Mockito.any())))
-                .thenReturn(itemResponseDto);
-
-        itemService.saveNewItem(1L, itemDto);
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/items/{itemId}", itemDto.getId())
-                        .header("X-Sharer-User-Id", 1L))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk());
-
-        Mockito.verify(itemService).getItemById(itemDto.getId(), 1L);
+        verify(itemService).saveNewItem(1L, itemDto);
     }
 
 
     @Test
     @DisplayName("Тест на эндпоинт @PatchMapping на одновление Item по ID")
     @SneakyThrows
-    void itemUpdateTest() {
-        Item item = mockItem1;
+    void updateItemTest() {
         ItemDto itemDto = ItemMapper.toItemDto(mockItem1);
-        ItemResponseDto itemResponseDto = ItemResponseDto.create(mockBooking1, mockBooking2, item, List.of());
-
-        Mockito
-                .when(itemService.saveNewItem(Mockito.any(), Mockito.any()))
-                .thenReturn(itemDto);
-
-        Mockito
-                .when((itemService.getItemById(Mockito.any(), Mockito.any())))
-                .thenReturn(itemResponseDto);
-
-        Mockito
-                .when((itemService.updateItem(Mockito.anyLong(), Mockito.anyLong(), Mockito.any(ItemDto.class))))
-                .thenReturn(itemDto);
-
+        ItemResponseDto itemResponseDto = ItemResponseDto.create(mockBooking1, mockBooking2, mockItem1, List.of());
+        when(itemService.saveNewItem(Mockito.any(), Mockito.any())).thenReturn(itemDto);
+        when((itemService.getItemById(Mockito.any(), Mockito.any()))).thenReturn(itemResponseDto);
+        when((itemService.updateItem(Mockito.anyLong(), Mockito.anyLong(), Mockito.any(ItemDto.class)))).thenReturn(itemDto);
         itemService.saveNewItem(1L, itemDto);
-
         mockMvc.perform(MockMvcRequestBuilders.patch("/items/{itemId}", 1L)
                         .header("X-Sharer-User-Id", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -155,85 +162,36 @@ public class ItemControllerTest {
                 .andDo(print());
     }
 
-    @Test
-    @DisplayName("Тест на эндпоинт @GetMapping на получение всех Item для User Owner")
-    @SneakyThrows
-    void geAllItemsByOwnerTest() {
-        User owner = mockUser1;
-        Item item1 = mockItem1;
-        Item item2 = mockItem2;
-        item2.setOwner(owner);
-        int from = 3;
-        int size = 2;
-        mockMvc.perform(MockMvcRequestBuilders.get("/items?from={from}&size={size}", from, size)
-                        .header("X-Sharer-User-Id", owner.getId()))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk());
-
-        Mockito.verify(itemService).getOwnersItems(3, 2, owner.getId());
-    }
 
     @Test
     @DisplayName("Тест на эндпоинт @DeleteMapping на удаленчие Item по ID")
     @SneakyThrows
     void deleteItemTest() {
-        Item item = mockItem1;
         ItemDto itemDto = ItemMapper.toItemDto(mockItem1);
-        ItemResponseDto itemResponseDto = ItemResponseDto.create(mockBooking1, mockBooking2, item, List.of());
-
-        Mockito
-                .when(itemService.saveNewItem(Mockito.any(), Mockito.any()))
-                .thenReturn(itemDto);
-
-        Mockito
-                .when((itemService.getItemById(Mockito.any(), Mockito.any())))
-                .thenReturn(itemResponseDto);
-
+        ItemResponseDto itemResponseDto = ItemResponseDto.create(mockBooking1, mockBooking2, mockItem1, List.of());
+        when(itemService.saveNewItem(Mockito.any(), Mockito.any())).thenReturn(itemDto);
+        when((itemService.getItemById(Mockito.any(), Mockito.any()))).thenReturn(itemResponseDto);
         itemService.saveNewItem(1L, itemDto);
-
         mockMvc.perform(MockMvcRequestBuilders.delete("/items/{itemId}", 1L)
                         .header("X-Sharer-User-Id", 1L))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk());
-
-        Mockito.verify(itemService).deleteItem(1L, 1L);
+        verify(itemService).deleteItem(1L, 1L);
     }
 
-    @Test
-    @DisplayName("Тест на эндпоинт @GetMapping на поиск всех Item по текстовому запросу")
-    @SneakyThrows
-    void searchItemTest() {
-        User user = mockUser1;
-        String text = "Серп";
-        mockMvc.perform(MockMvcRequestBuilders.get("/items/search")
-                        .param("from", "0")
-                        .param("size", "10")
-                        .param("text", text)
-                        .header("X-Sharer-User-Id", user.getId()))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk());
-
-        Mockito.verify(itemService).searchBy(text, 1L, 0, 10);
-    }
 
     @Test
     @DisplayName("Тест на эндпоинт @PostMapping создания Comment")
     @SneakyThrows
     void addCommentTest() {
-        User user = mockUser1;
-        Item item = mockItem1;
-
         Comment comment = Comment.builder()
                 .id(1L)
                 .text("Comment")
-                .item(item)
-                .author(user)
+                .item(mockItem1)
+                .author(mockUser1)
                 .build();
-        CommentDto commentDto = CommentMapper.commentToDto(comment);
         CommentResponseDto commentResponseDto = CommentMapper.toResponseDto(comment);
-
-        Mockito
-                .when(itemService.addComment(ArgumentMatchers.any(), ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong()))
+        when(itemService.addComment(ArgumentMatchers.any(), ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong()))
                 .thenReturn(commentResponseDto);
         mockMvc.perform(MockMvcRequestBuilders.post("/items/{itemId}/comment", 1L)
                         .header("X-Sharer-User-Id", 1L)
@@ -250,30 +208,24 @@ public class ItemControllerTest {
     @Test
     @DisplayName("Тест на ItemMapper с исключением Dto.")
     public void dtoToItemNullDtoTest() {
-        ItemDto itemDto = null;
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ItemMapper.dtoToItem(itemDto);
+        assertThrows(IllegalArgumentException.class, () -> {
+            ItemMapper.dtoToItem(null);
         });
     }
 
     @Test
     @DisplayName("Тест на ItemMapper с исключением Dto.")
     public void itemToDtoNullDtoTest() {
-        Item item = null;
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ItemMapper.toItemDto(item);
+        assertThrows(IllegalArgumentException.class, () -> {
+            ItemMapper.toItemDto(null);
         });
     }
 
     @Test
     @DisplayName("Тест на ItemMapper с исключением Dto.")
     public void toResposeItemNullDtoTest() {
-        Item item = null;
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ItemMapper.toResponseItem(item);
+        assertThrows(IllegalArgumentException.class, () -> {
+            ItemMapper.toResponseItem(null);
         });
     }
 

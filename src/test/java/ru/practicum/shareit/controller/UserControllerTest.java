@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -20,6 +19,9 @@ import ru.practicum.shareit.user.dto.UserMapper;
 
 import java.nio.charset.StandardCharsets;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -39,115 +41,61 @@ public class UserControllerTest {
     private static final User mockUser1 = User.builder().id(1L).name("Ivan").email("ivan@mail.ru").build();
     private static final User mockUser2 = User.builder().id(2L).name("Petr").email("petr@mail.ru").build();
 
-
-    @Test
-    @DisplayName("Тест на эндпоинт @GetMapping на получение User по ID")
-    @SneakyThrows
-    void getByIdTest() {
-        User user = mockUser1;
-        UserDto userDto = UserMapper.toUserDto(user);
-
-        Mockito
-                .when(userService.saveNewUser(Mockito.any()))
-                .thenReturn(userDto);
-
-        Mockito
-                .when((userService.getUserById(Mockito.any())))
-                .thenReturn(userDto);
-
-        userService.saveNewUser(userDto);
-
-        mockMvc.perform(get("/users/{id}", user.getId()))
-                .andDo(print())
-                .andExpect(status().isOk());
-
-        Mockito.verify(userService).getUserById(userDto.getId());
-    }
-
     @Test
     @DisplayName("Тест на эндпоинт @GetMapping на получение всех User")
     @SneakyThrows
     void geAllUsersTest() {
-        User user1 = mockUser1;
-        UserDto userDto1 = UserMapper.toUserDto(user1);
-        User user2 = mockUser2;
-        UserDto userDto2 = UserMapper.toUserDto(user2);
-
-        Mockito
-                .when(userService.saveNewUser(userDto1))
-                .thenReturn(userDto1);
-        Mockito
-                .when((userService.getUserById(1L)))
-                .thenReturn(userDto1);
-        Mockito
-                .when(userService.saveNewUser(userDto2))
-                .thenReturn(userDto2);
-        Mockito
-                .when((userService.getUserById(2L)))
-                .thenReturn(userDto2);
-
+        UserDto userDto1 = UserMapper.toUserDto(mockUser1);
+        UserDto userDto2 = UserMapper.toUserDto(mockUser2);
+        when(userService.saveNewUser(userDto1)).thenReturn(userDto1);
+        when((userService.getUserById(1L))).thenReturn(userDto1);
+        when(userService.saveNewUser(userDto2)).thenReturn(userDto2);
+        when((userService.getUserById(2L))).thenReturn(userDto2);
         userService.saveNewUser(userDto1);
         userService.saveNewUser(userDto2);
-
         mockMvc.perform(get("/users"))
                 .andDo(print())
                 .andExpect(status().isOk());
-
-        Mockito.verify(userService).getAllUsers();
+        verify(userService).getAllUsers();
     }
 
     @Test
-    @DisplayName("Тест на эндпоинт @DeleteMapping на удаление User по ID")
+    @DisplayName("Тест на эндпоинт @GetMapping на получение User по ID")
     @SneakyThrows
-    void deleteUserTest() {
+    void getUserByIdTest() {
         User user = mockUser1;
         UserDto userDto = UserMapper.toUserDto(user);
-
-        Mockito
-                .when(userService.saveNewUser(Mockito.any()))
-                .thenReturn(userDto);
-
-        Mockito
-                .when((userService.getUserById(Mockito.any())))
-                .thenReturn(userDto);
-
+        when(userService.saveNewUser(any())).thenReturn(userDto);
+        when((userService.getUserById(any()))).thenReturn(userDto);
         userService.saveNewUser(userDto);
-
-        mockMvc.perform(delete("/users/{userId}", userDto.getId()))
+        mockMvc.perform(get("/users/{id}", user.getId()))
                 .andDo(print())
                 .andExpect(status().isOk());
+        verify(userService).getUserById(userDto.getId());
+    }
 
-        Mockito.verify(userService).deleteUser(1L);
-
+    @Test
+    @DisplayName("Тест на эндпоинт  @PostMapping создания нового User")
+    void saveNewUser() {
+        UserDto userDto = UserMapper.toUserDto(mockUser1);
+        when(userService.saveNewUser(any(UserDto.class))).thenReturn(userDto);
+        userService.saveNewUser(userDto);
+        verify(userService).saveNewUser(userDto);
     }
 
     @Test
     @DisplayName("Тест на эндпоинт @PatchMapping на одновление User по ID")
     @SneakyThrows
     void updateUserTest() {
-        User user1 = mockUser1;
-        UserDto userDto1 = UserMapper.toUserDto(user1);
+        UserDto userDto1 = UserMapper.toUserDto(mockUser1);
         User user2 = mockUser2;
         user2.setId(1L);
         UserDto userDto2 = UserMapper.toUserDto(user2);
-
-        Mockito
-                .when(userService.saveNewUser(userDto1))
-                .thenReturn(userDto1);
-        Mockito
-                .when((userService.getUserById(1L)))
-                .thenReturn(userDto1);
-        Mockito
-                .when(userService.saveNewUser(userDto2))
-                .thenReturn(userDto2);
-        Mockito
-                .when((userService.getUserById(2L)))
-                .thenReturn(userDto2);
-
-        Mockito
-                .when(userService.updateUser(1L, userDto2))
-                .thenReturn(userDto2);
-
+        when(userService.saveNewUser(userDto1)).thenReturn(userDto1);
+        when((userService.getUserById(1L))).thenReturn(userDto1);
+        when(userService.saveNewUser(userDto2)).thenReturn(userDto2);
+        when((userService.getUserById(2L))).thenReturn(userDto2);
+        when(userService.updateUser(1L, userDto2)).thenReturn(userDto2);
         mockMvc.perform(
                         patch("/users/{userId}", 1L)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -159,5 +107,19 @@ public class UserControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
+    }
+
+    @Test
+    @DisplayName("Тест на эндпоинт @DeleteMapping на удаление User по ID")
+    @SneakyThrows
+    void deleteUserTest() {
+        UserDto userDto = UserMapper.toUserDto(mockUser1);
+        when(userService.saveNewUser(any())).thenReturn(userDto);
+        when((userService.getUserById(any()))).thenReturn(userDto);
+        userService.saveNewUser(userDto);
+        mockMvc.perform(delete("/users/{userId}", userDto.getId()))
+                .andDo(print())
+                .andExpect(status().isOk());
+        verify(userService).deleteUser(1L);
     }
 }

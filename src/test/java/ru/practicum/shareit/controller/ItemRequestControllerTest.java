@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -51,17 +52,9 @@ public class ItemRequestControllerTest {
         ItemRequest itemRequest = mockItemRequest1;
         ItemRequestDto itemRequestDto = ItemRequestMapper.itemRequestToDto(itemRequest);
         ItemRequestResponseDto itemRequestResponseDto = ItemRequestMapper.toItemRequestResponse(itemRequest);
-
-        Mockito
-                .when(itemRequestService.create(Mockito.any(), Mockito.any()))
-                .thenReturn(itemRequestDto);
-
-        Mockito
-                .when((itemRequestService.getById(Mockito.any(), Mockito.any())))
-                .thenReturn(itemRequestResponseDto);
-
+        when(itemRequestService.create(Mockito.any(), Mockito.any())).thenReturn(itemRequestDto);
+        when((itemRequestService.getById(Mockito.any(), Mockito.any()))).thenReturn(itemRequestResponseDto);
         itemRequestService.create(itemRequestDto, 1L);
-
         mockMvc.perform(post("/requests")
                         .header("X-Sharer-User-Id", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -75,20 +68,19 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    @DisplayName("Тест на эндпоинт @GetMapping получения всех ItemRequest для User Requestor")
+    @DisplayName("Тест на эндпоинт @GetMapping получения всех ItemRequest для User Requester")
     @SneakyThrows
-    void getAllForRequestorTest() {
-        User requestor = mockUser1;
+    void getAllForRequesterTest() {
+        User requester = mockUser1;
         mockMvc.perform(get("/requests")
-                        .header("X-Sharer-User-Id", requestor.getId()))
+                        .header("X-Sharer-User-Id", requester.getId()))
                 .andDo(print())
                 .andExpect(status().isOk());
-
-        verify(itemRequestService).getAllForRequester(requestor.getId());
+        verify(itemRequestService).getAllForRequester(requester.getId());
     }
 
     @Test
-    @DisplayName("Тест на эндпоинт @GetMapping получения всех ItemRequest для User Requestor")
+    @DisplayName("Тест на эндпоинт @GetMapping получения всех ItemRequest для User Requester")
     @SneakyThrows
     void getAllTest() {
         User user = mockUser1;
@@ -96,7 +88,6 @@ public class ItemRequestControllerTest {
                         .header("X-Sharer-User-Id", user.getId()))
                 .andDo(print())
                 .andExpect(status().isOk());
-
         verify(itemRequestService).getAllRequests(0, 20, user.getId());
     }
 
@@ -110,7 +101,6 @@ public class ItemRequestControllerTest {
                         .header("X-Sharer-User-Id", user.getId()))
                 .andDo(print())
                 .andExpect(status().isOk());
-
         verify(itemRequestService).getById(itemRequest.getId(), user.getId());
     }
 }

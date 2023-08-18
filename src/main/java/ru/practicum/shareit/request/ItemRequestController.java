@@ -35,7 +35,7 @@ public class ItemRequestController {
     }
 
     @GetMapping
-    public List<ItemRequestResponseDto> getAllForRequestor(
+    public List<ItemRequestResponseDto> getAllForRequester(
             @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId) {
         return itemRequestService.getAllForRequester(userId);
     }
