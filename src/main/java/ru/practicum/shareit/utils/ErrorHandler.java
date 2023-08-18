@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.exceptions.EmailDuplicateException;
 import ru.practicum.shareit.exceptions.ErrorMessage;
 import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.exceptions.UnknownStateException;
 
 import java.util.Objects;
 
@@ -21,6 +22,12 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorMessage notFoundException(final NotFoundException e) {
         return new ErrorMessage(e.getMessage());
+    }
+
+    @ExceptionHandler(UnknownStateException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage unknownStateException(final UnknownStateException e) {
+        return new ErrorMessage("Unknown state: " + e.getMessage());
     }
 
     @ResponseStatus(value = HttpStatus.CONFLICT)

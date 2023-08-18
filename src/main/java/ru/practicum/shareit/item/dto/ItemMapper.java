@@ -36,4 +36,16 @@ public class ItemMapper {
         item.setAvailable(itemDto.getAvailable() != null ? itemDto.getAvailable() : item.getAvailable());
         return item;
     }
+
+    public static ItemResponseDto toResponseItem(Item item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Item can not be null.");
+        }
+        return ItemResponseDto.builder()
+                .id(item.getId())
+                .available(item.getAvailable())
+                .description(item.getDescription())
+                .name(item.getName())
+                .build();
+    }
 }

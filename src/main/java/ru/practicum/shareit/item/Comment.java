@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.Column;
@@ -16,26 +15,27 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 
-@Builder
-@Getter
-@Setter
 @Entity
-@Table(name = "items", schema = "public")
-@NoArgsConstructor
+@Table(name = "comments")
+@Setter
+@Getter
+@Builder
 @AllArgsConstructor
-public class Item {
+@NoArgsConstructor
+public class Comment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "name", nullable = false)
-    private String name;
-    @Column(name = "description", nullable = false)
-    private String description;
-    @Column(name = "is_available", nullable = false)
-    private Boolean available;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    private User owner;
+    @Column(name = "text", nullable = false)
+    private String text;
     @ManyToOne(fetch = FetchType.LAZY)
-    private ItemRequest request;
+    private Item item;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User author;
+    @Column(name = "created", columnDefinition = "timestamp")
+    @Builder.Default
+    private LocalDateTime created = LocalDateTime.now();
 }
