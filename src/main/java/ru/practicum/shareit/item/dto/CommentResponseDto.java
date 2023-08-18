@@ -1,13 +1,17 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@EqualsAndHashCode
+@ToString
 public class CommentResponseDto {
     private Long id;
     @NotBlank

@@ -7,13 +7,13 @@ import ru.practicum.shareit.item.dto.ItemResponseDto;
 
 import java.util.List;
 
-interface ItemService {
+public interface ItemService {
 
     List<ItemDto> getAllItems();
 
-    List<ItemResponseDto> getOwnersItems(Long userId);
+    List<ItemResponseDto> getOwnersItems(int from, int size, Long userId);
 
-    List<ItemDto> searchBy(String text, Long userId);
+    List<ItemDto> searchBy(String text, Long userId, int from, int size);
 
     ItemResponseDto getItemById(Long id, Long userId);
 

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -17,11 +18,13 @@ import ru.practicum.shareit.utils.Constants;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/bookings")
+@Validated
 public class BookingController {
     private final BookingService bookingService;
 
@@ -53,17 +56,21 @@ public class BookingController {
     @GetMapping
     public List<BookingResponseDto> getUserBookings(
             @RequestParam(required = false, defaultValue = "ALL") String state,
-            @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId
+            @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId,
+            @RequestParam(defaultValue = "0", required = false) @PositiveOrZero int from,
+            @RequestParam(defaultValue = "10", required = false) @Positive int size
     ) {
-        return bookingService.getUserBookings(userId, state);
+        return bookingService.getUserBookings(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingResponseDto> getOwnerBookings(
             @RequestParam(required = false, defaultValue = "ALL") String state,
-            @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId
+            @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId,
+            @RequestParam(defaultValue = "0", required = false) @PositiveOrZero int from,
+            @RequestParam(defaultValue = "10", required = false) @Positive int size
     ) {
-        return bookingService.getOwnerBookings(userId, state);
+        return bookingService.getOwnerBookings(userId, state, from, size);
     }
 
     @DeleteMapping("/{id}")

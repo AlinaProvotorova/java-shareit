@@ -1,8 +1,11 @@
 package ru.practicum.shareit.booking.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -15,15 +18,21 @@ import static ru.practicum.shareit.utils.Constants.PATTERN_DATETIME;
 
 @Getter
 @Setter
-@ToString
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class BookingRequestDto {
+
     @NotNull
     private Long itemId;
+
     @NotNull(message = "Не указанно время начала бронирования.")
     @FutureOrPresent(message = "Время начала бронирования не должно быть в прошлом.")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = PATTERN_DATETIME)
     private LocalDateTime start;
+
     @NotNull(message = "Не указанно время окончания бронирования.")
     @Future(message = "Время окончания бронирования не должно быть в будущем.")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = PATTERN_DATETIME)

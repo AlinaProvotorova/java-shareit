@@ -12,6 +12,7 @@ import ru.practicum.shareit.exceptions.ErrorMessage;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.UnknownStateException;
 
+import javax.validation.ConstraintViolationException;
 import java.util.Objects;
 
 @RestControllerAdvice
@@ -21,6 +22,12 @@ public class ErrorHandler {
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorMessage notFoundException(final NotFoundException e) {
+        return new ErrorMessage(e.getMessage());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage notFoundException(final ConstraintViolationException e) {
         return new ErrorMessage(e.getMessage());
     }
 

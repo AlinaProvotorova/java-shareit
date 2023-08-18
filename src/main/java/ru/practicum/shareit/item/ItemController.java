@@ -20,6 +20,7 @@ import ru.practicum.shareit.utils.Constants;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -34,8 +35,12 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemResponseDto> getOwnersItems(@RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId) {
-        return itemService.getOwnersItems(userId);
+    public List<ItemResponseDto> getOwnersItems(
+            @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId,
+            @RequestParam(defaultValue = "0", required = false) @PositiveOrZero int from,
+            @RequestParam(defaultValue = "10", required = false) @Positive int size
+    ) {
+        return itemService.getOwnersItems(from, size, userId);
     }
 
     @GetMapping("/{id}")
@@ -49,9 +54,11 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDto> searchBy(
             @RequestParam(value = "text") @NotBlank String text,
-            @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId
+            @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId,
+            @RequestParam(defaultValue = "0", required = false) @PositiveOrZero int from,
+            @RequestParam(defaultValue = "10", required = false) @Positive int size
     ) {
-        return itemService.searchBy(text, userId);
+        return itemService.searchBy(text, userId, from, size);
     }
 
     @PostMapping
