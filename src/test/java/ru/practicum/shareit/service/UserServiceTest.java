@@ -39,7 +39,6 @@ import static org.mockito.Mockito.when;
 public class UserServiceTest {
 
     private User mockUser1;
-    ;
     @Mock
     UserRepository userRepository;
     UserServiceImpl userService;
