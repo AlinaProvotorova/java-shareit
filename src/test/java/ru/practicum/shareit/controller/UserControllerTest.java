@@ -1,5 +1,6 @@
 package ru.practicum.shareit.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -25,6 +26,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -76,11 +78,21 @@ public class UserControllerTest {
 
     @Test
     @DisplayName("Тест на эндпоинт  @PostMapping создания нового User")
-    void saveNewUser() {
+    void saveNewUser() throws Exception {
         UserDto userDto = UserMapper.toUserDto(mockUser1);
         when(userService.saveNewUser(any(UserDto.class))).thenReturn(userDto);
         userService.saveNewUser(userDto);
-        verify(userService).saveNewUser(userDto);
+        mockMvc.perform(
+                        post("/users", 1L)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userDto))
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
     }
 
     @Test

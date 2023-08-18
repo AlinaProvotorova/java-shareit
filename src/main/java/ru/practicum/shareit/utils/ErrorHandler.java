@@ -27,7 +27,7 @@ public class ErrorHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorMessage notFoundException(final ConstraintViolationException e) {
+    public ErrorMessage constraintViolationException(final ConstraintViolationException e) {
         return new ErrorMessage(e.getMessage());
     }
 
@@ -45,7 +45,7 @@ public class ErrorHandler {
 
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalArgumentException.class)
-    public ErrorMessage emailDuplicateException(final IllegalArgumentException e) {
+    public ErrorMessage illegalArgumentException(final IllegalArgumentException e) {
         log.info(e.getMessage());
         return new ErrorMessage(e.getMessage());
     }

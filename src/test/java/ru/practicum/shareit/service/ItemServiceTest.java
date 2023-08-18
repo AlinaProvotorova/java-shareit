@@ -10,8 +10,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +44,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -317,6 +314,27 @@ public class ItemServiceTest {
         verify(bookingRepository).findAllByBooker_IdAndItem_IdAndEndBefore(
                 Mockito.any(), Mockito.any(), Mockito.any(LocalDateTime.class));
         verify(commentRepository).save(any(Comment.class));
+    }
+
+    @Test
+    @DisplayName("Test маппера Comment to CommentDto")
+    public void testCommentToDto() {
+        Comment comment = new Comment();
+        comment.setId(1L);
+        comment.setText("Test comment");
+        comment.setAuthor(mockUser1);
+
+        CommentDto result = CommentMapper.commentToDto(comment);
+
+        assertEquals(comment.getId(), result.getId());
+        assertEquals(comment.getText(), result.getText());
+        assertEquals(comment.getAuthor(), result.getAuthor());
+    }
+
+    @Test
+    @DisplayName("Test маппера null Comment to CommentDto")
+    public void testCommentToDto_NullComment() {
+        assertThrows(IllegalArgumentException.class, () -> CommentMapper.commentToDto(null));
     }
 }
 
