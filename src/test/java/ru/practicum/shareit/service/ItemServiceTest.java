@@ -12,6 +12,7 @@ import org.mockito.MockitoSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingStatus;
@@ -21,6 +22,7 @@ import ru.practicum.shareit.item.CommentRepository;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.ItemServiceImpl;
+import ru.practicum.shareit.item.ItemValidate;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentMapper;
 import ru.practicum.shareit.item.dto.CommentResponseDto;
@@ -37,12 +39,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -150,7 +154,7 @@ public class ItemServiceTest {
             itemService.saveNewItem(mockUser1.getId(), ItemMapper.toItemDto(mockItem1));
         });
         verify(userRepository, Mockito.times(1)).findById(mockUser1.getId());
-        verify(itemRepository, Mockito.never()).save(Mockito.any());
+        verify(itemRepository, never()).save(Mockito.any());
     }
 
     @Test
@@ -267,7 +271,7 @@ public class ItemServiceTest {
 
         verify(itemRepository, Mockito.times(1)).deleteById(1L);
         verify(itemRepository, Mockito.times(2)).findById(Mockito.any());
-        verify(itemRepository, Mockito.never()).save(Mockito.any());
+        verify(itemRepository, never()).save(Mockito.any());
         verifyNoMoreInteractions(userRepository);
     }
 
@@ -330,6 +334,30 @@ public class ItemServiceTest {
     }
 
     @Test
+    @DisplayName("Тест на добавление Comment без завершенного Booking")
+    public void addCommentWithoutCompletedBookingTest() {
+        CommentDto commentDto = CommentDto.builder()
+                .text("comment")
+                .build();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser1));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(mockItem1));
+        when(bookingRepository.findAllByBooker_IdAndItem_IdAndEndBefore(
+                Mockito.any(), Mockito.any(), Mockito.any(LocalDateTime.class)))
+                .thenReturn(Collections.singletonList(mockBooking1));
+        when(commentRepository.save(any(Comment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        CommentResponseDto result = itemService.addComment(commentDto, 1L, 1L);
+        assertNotNull(result);
+        assertEquals(commentDto.getText(), result.getText());
+        assertEquals(mockUser1.getId(), 1L);
+        assertEquals(mockItem1.getId(), 1L);
+        verify(userRepository).findById(1L);
+        verify(itemRepository).findById(1L);
+        verify(bookingRepository).findAllByBooker_IdAndItem_IdAndEndBefore(
+                Mockito.any(), Mockito.any(), Mockito.any(LocalDateTime.class));
+        verify(commentRepository).save(any(Comment.class));
+    }
+
+    @Test
     @DisplayName("Test маппера Comment to CommentDto")
     public void testCommentToDto() {
         Comment comment = new Comment();
@@ -348,6 +376,139 @@ public class ItemServiceTest {
     @DisplayName("Test маппера null Comment to CommentDto")
     public void testCommentToDto_NullComment() {
         assertThrows(IllegalArgumentException.class, () -> CommentMapper.commentToDto(null));
+    }
+
+    @Test
+    void testAddCommentWithoutValidBooking() {
+        CommentDto commentDto = CommentDto.builder()
+                .text("comment")
+                .build();
+        when(bookingRepository.findAllByBooker_IdAndItem_IdAndEndBefore(
+                anyLong(), anyLong(), any(LocalDateTime.class)))
+                .thenReturn(Collections.emptyList());
+
+        assertThrows(IllegalArgumentException.class, () ->
+                itemService.addComment(commentDto, 1L, 2L));
+
+        verify(bookingRepository).findAllByBooker_IdAndItem_IdAndEndBefore(
+                anyLong(), anyLong(), any(LocalDateTime.class));
+    }
+
+    @Test
+    void testAddCommentUserNotFound() {
+        CommentDto commentDto = CommentDto.builder()
+                .text("comment")
+                .build();
+        when(bookingRepository.findAllByBooker_IdAndItem_IdAndEndBefore(
+                anyLong(), anyLong(), any(LocalDateTime.class)))
+                .thenReturn(Collections.singletonList(mockBooking1));
+        when(userRepository.findById(2L)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () ->
+                itemService.addComment(commentDto, 1L, 2L));
+
+        verify(userRepository).findById(2L);
+        verify(bookingRepository).findAllByBooker_IdAndItem_IdAndEndBefore(
+                anyLong(), anyLong(), any(LocalDateTime.class));
+    }
+
+    @Test
+    void testAddCommentItemNotFound() {
+        CommentDto commentDto = CommentDto.builder()
+                .text("comment")
+                .build();
+        when(bookingRepository.findAllByBooker_IdAndItem_IdAndEndBefore(
+                anyLong(), anyLong(), any(LocalDateTime.class)))
+                .thenReturn(Collections.singletonList(mockBooking1));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser1));
+        when(itemRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () ->
+                itemService.addComment(commentDto, 1L, 1L));
+
+        verify(userRepository).findById(1L);
+        verify(itemRepository).findById(1L);
+        verify(bookingRepository).findAllByBooker_IdAndItem_IdAndEndBefore(
+                anyLong(), anyLong(), any(LocalDateTime.class));
+    }
+
+    @Test
+    void testCheckOwnerItemValidOwner() {
+        User owner = new User();
+        owner.setId(1L);
+        Item item = new Item();
+        item.setId(1L);
+        item.setOwner(owner);
+
+        assertDoesNotThrow(() -> ItemValidate.checkOwnerItem(item, 1L));
+    }
+
+    @Test
+    void testCheckOwnerItemInvalidOwner() {
+        User owner = new User();
+        owner.setId(1L);
+        Item item = new Item();
+        item.setId(1L);
+        item.setOwner(owner);
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> ItemValidate.checkOwnerItem(item, 2L));
+
+        assertEquals("У пользователя с ID 2 вещи с ID 1 не существует", exception.getMessage());
+    }
+
+    @Test
+    void testCheckItemAvailableAvailableItem() {
+        ItemDto item = new ItemDto();
+        item.setAvailable(true);
+
+        assertDoesNotThrow(() -> ItemValidate.checkItemAvailable(item));
+    }
+
+    @Test
+    void testCheckItemAvailableNullAvailable() {
+        ItemDto item = new ItemDto();
+        item.setAvailable(null);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> ItemValidate.checkItemAvailable(item));
+
+        assertEquals("Поле available не может быть пустым", exception.getReason());
+    }
+
+    @Test
+    void testCheckItemAvailableUnavailableItem() {
+        ItemDto item = new ItemDto();
+        item.setAvailable(false);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> ItemValidate.checkItemAvailable(item));
+        assertEquals("Поле available не может быть пустым", exception.getReason());
+    }
+
+    @Test
+    void testGetOwnersItemsInvalidUser() {
+        when(userRepository.findById(2L)).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> itemService.getOwnersItems(0, 10, 2L));
+
+        assertEquals("Пользователя с id 2 не существует", exception.getMessage());
+        verify(commentRepository, never()).findAllByItem_Id(any());
+        verify(bookingRepository, never()).findFirstByItemIdAndStartBeforeAndStatusOrderByEndDesc(
+                anyLong(), any(LocalDateTime.class), any(BookingStatus.class));
+        verify(bookingRepository, never()).findFirstByItemIdAndStartAfterAndStatusOrderByStartAsc(
+                anyLong(), any(LocalDateTime.class), any(BookingStatus.class));
+    }
+
+    @Test
+    void testSaveNewItemInvalidUser() {
+        when(userRepository.findById(2L)).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> itemService.saveNewItem(2L, ItemMapper.toItemDto(mockItem1)));
+
+        assertEquals("Пользователя с id 2 не существует", exception.getMessage());
+        verify(itemRepository, never()).save(any(Item.class));
     }
 }
 
