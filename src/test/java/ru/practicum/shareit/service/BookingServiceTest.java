@@ -226,8 +226,7 @@ public class BookingServiceTest {
         Booking booking = mockBooking1;
         booking.setStatus(BookingStatus.APPROVED);
         when(bookingRepository.findById(Mockito.any())).thenReturn(Optional.of(booking));
-        User userOwner = mockUser1;
-        when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(userOwner));
+        when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(mockUser1));
         assertThrows(IllegalArgumentException.class,
                 () -> bookingServiceImpl.updateBookingStatus(1L, 1L, true));
         Exception exception = assertThrows(IllegalArgumentException.class,
@@ -242,8 +241,7 @@ public class BookingServiceTest {
         Booking booking = mockBooking1;
         booking.setStatus(BookingStatus.REJECTED);
         when(bookingRepository.findById(Mockito.any())).thenReturn(Optional.of(booking));
-        User userOwner = mockUser1;
-        when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(userOwner));
+        when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(mockUser1));
         assertThrows(IllegalArgumentException.class,
                 () -> bookingServiceImpl.updateBookingStatus(1L, 1L, false));
         Exception exception = assertThrows(IllegalArgumentException.class,
@@ -258,8 +256,7 @@ public class BookingServiceTest {
         Booking booking = mockBooking1;
         booking.setStatus(BookingStatus.WAITING);
         when(bookingRepository.findById(Mockito.any())).thenReturn(Optional.of(booking));
-        User userOwner = mockUser2;
-        when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(userOwner));
+        when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(mockUser2));
         assertThrows(NotFoundException.class,
                 () -> bookingServiceImpl.updateBookingStatus(1L, 2L, false));
         Exception exception = assertThrows(NotFoundException.class,
@@ -271,14 +268,12 @@ public class BookingServiceTest {
     @Test
     @DisplayName("Тест testInvalidBookingStatus")
     public void testInvalidBookingStatus() {
-        boolean approved = true;
         Booking booking = mockBooking1;
         booking.setStatus(BookingStatus.APPROVED);
         when(bookingRepository.findById(Mockito.any())).thenReturn(Optional.of(booking));
-        User userOwner = mockUser2;
-        when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(userOwner));
+        when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(mockUser2));
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            bookingServiceImpl.updateBookingStatus(1L, 1L, approved);
+            bookingServiceImpl.updateBookingStatus(1L, 1L, true);
         });
         assertEquals("Невозможно изменить статус. Статус бронирования уже изменен на APPROVED или REJECTED.",
                 exception.getMessage());
@@ -288,22 +283,18 @@ public class BookingServiceTest {
     @DisplayName("Тест testGetBookingByIdExistingBooking")
     public void testGetBookingByIdExistingBooking() {
         Booking booking = mockBooking1;
-        Long bookingId = 1L;
-        Long userId = 1L;
         BookingResponseDto expectedResponse = BookingMapper.bookingToResponse(booking);
         when(bookingRepository.findById(Mockito.any())).thenReturn(Optional.of(booking));
-        BookingResponseDto actualResponse = bookingServiceImpl.getBookingById(bookingId, userId);
+        BookingResponseDto actualResponse = bookingServiceImpl.getBookingById(1L, 1L);
         assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
     @DisplayName("Тест testGetBookingByIdNonExistingBooking")
     public void testGetBookingByIdNonExistingBooking() {
-        Long bookingId = 1L;
-        Long userId = 1L;
         when(bookingRepository.findById(Mockito.any())).thenReturn(null);
         assertThrows(NullPointerException.class, () -> {
-            bookingServiceImpl.getBookingById(bookingId, userId);
+            bookingServiceImpl.getBookingById(1L, 1L);
         });
     }
 
@@ -313,11 +304,9 @@ public class BookingServiceTest {
         Booking booking = mockBooking1;
         booking.setBooker(mockUser2);
         booking.getItem().setOwner(mockUser1);
-        Long bookingId = 1L;
-        Long userId = 3L;
         when(bookingRepository.findById(Mockito.any())).thenReturn(Optional.of(booking));
         assertThrows(NotFoundException.class, () -> {
-            bookingServiceImpl.getBookingById(bookingId, userId);
+            bookingServiceImpl.getBookingById(1L, 3L);
         }, "Booking not found");
     }
 
@@ -325,11 +314,9 @@ public class BookingServiceTest {
     @DisplayName("Тест testGetBookingByIdCorrectData")
     public void testGetBookingByIdCorrectData() {
         Booking booking = mockBooking1;
-        Long bookingId = 1L;
-        Long userId = 1L;
         BookingResponseDto expectedResponse = BookingMapper.bookingToResponse(booking);
         when(bookingRepository.findById(Mockito.any())).thenReturn(Optional.of(booking));
-        BookingResponseDto actualResponse = bookingServiceImpl.getBookingById(bookingId, userId);
+        BookingResponseDto actualResponse = bookingServiceImpl.getBookingById(1L, 1L);
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -341,13 +328,10 @@ public class BookingServiceTest {
         List<Booking> bookingList = Arrays.asList(mockBooking1, mockBooking2);
         when(bookingRepository.findBookingByBookerOrderByStartDesc(
                 Mockito.any(), Mockito.any())).thenReturn(bookingList);
-        int from = 0;
-        int size = 10;
-        String state = "ALL";
-        Long bookerId = 1L;
         List<BookingResponseDto> expectedResponse = Arrays.asList(BookingMapper.bookingToResponse(mockBooking1),
                 BookingMapper.bookingToResponse(mockBooking2));
-        List<BookingResponseDto> actualResponse = bookingServiceImpl.getUserBookings(bookerId, state, from, size);
+        List<BookingResponseDto> actualResponse = bookingServiceImpl.getUserBookings(
+                1L, "ALL", 0, 10);
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -365,13 +349,10 @@ public class BookingServiceTest {
         List<Booking> bookingList = Arrays.asList(booking, booking2);
         when(bookingRepository.findBookingByBookerAndStatusOrderByStartDesc(
                 Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(bookingList);
-        int from = 0;
-        int size = 10;
-        String state = "WAITING";
-        Long bookerId = 1L;
         List<BookingResponseDto> expectedResponse = Arrays.asList(BookingMapper.bookingToResponse(booking),
                 BookingMapper.bookingToResponse(booking2));
-        List<BookingResponseDto> actualResponse = bookingServiceImpl.getUserBookings(bookerId, state, from, size);
+        List<BookingResponseDto> actualResponse = bookingServiceImpl.getUserBookings(
+                1L, "WAITING", 0, 10);
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -389,13 +370,10 @@ public class BookingServiceTest {
         List<Booking> bookingList = Arrays.asList(booking, booking2);
         when(bookingRepository.findBookingByBookerAndStatusOrderByStartDesc(
                 Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(bookingList);
-        int from = 0;
-        int size = 10;
-        String state = "REJECTED";
-        Long bookerId = 1L;
         List<BookingResponseDto> expectedResponse = Arrays.asList(
                 BookingMapper.bookingToResponse(booking), BookingMapper.bookingToResponse(booking2));
-        List<BookingResponseDto> actualResponse = bookingServiceImpl.getUserBookings(bookerId, state, from, size);
+        List<BookingResponseDto> actualResponse = bookingServiceImpl.getUserBookings(
+                1L, "REJECTED", 0, 10);
         assertEquals(expectedResponse, actualResponse);
     }
 
