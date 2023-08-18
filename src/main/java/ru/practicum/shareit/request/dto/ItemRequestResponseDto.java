@@ -13,9 +13,6 @@ import java.util.List;
 
 @Getter
 @Builder
-@Setter
-@EqualsAndHashCode
-@ToString
 public class ItemRequestResponseDto {
     private Long id;
     private String description;

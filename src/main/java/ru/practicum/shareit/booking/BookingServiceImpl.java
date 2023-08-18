@@ -155,9 +155,4 @@ public class BookingServiceImpl implements BookingService {
         }
         return bookList.stream().map(BookingMapper::bookingToResponse).collect(Collectors.toList());
     }
-
-    @Override
-    public void deleteById(Long id) {
-
-    }
 }

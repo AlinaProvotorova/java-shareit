@@ -18,8 +18,6 @@ import java.util.List;
 @Data
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-@EqualsAndHashCode
-@ToString
 public class ItemResponseDto {
 
     private Long id;

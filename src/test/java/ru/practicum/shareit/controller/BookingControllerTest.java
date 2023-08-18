@@ -26,7 +26,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -139,17 +138,6 @@ public class BookingControllerTest {
                 .andDo(print());
 
         verify(bookingService).getOwnerBookings(user.getId(), "ALL", 0, 10);
-    }
-
-    @Test
-    @DisplayName("Тест на эндпоинт  @DeleteMapping удаления Booking по ID")
-    @SneakyThrows
-    void deleteBookingById() {
-        Booking booking = mockBooking1;
-        mockMvc.perform(delete("/bookings/{id}", booking.getId()))
-                .andExpect(status().isOk())
-                .andDo(print());
-        verify(bookingService).deleteById(booking.getId());
     }
 
 }

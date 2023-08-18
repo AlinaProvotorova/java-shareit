@@ -19,11 +19,8 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
-@ToString
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode
 public class BookingResponseDto {
     private Long id;

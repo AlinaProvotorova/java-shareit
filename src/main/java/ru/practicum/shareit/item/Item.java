@@ -26,7 +26,6 @@ import javax.persistence.Table;
 @Table(name = "items", schema = "public")
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
 @ToString
 public class Item {
     @Id

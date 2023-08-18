@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -73,8 +72,4 @@ public class BookingController {
         return bookingService.getOwnerBookings(userId, state, from, size);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteBookingById(@PathVariable Long id) {
-        bookingService.deleteById(id);
-    }
 }

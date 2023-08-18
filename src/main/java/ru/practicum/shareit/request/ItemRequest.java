@@ -27,8 +27,6 @@ import java.time.LocalDateTime;
 @Table(name = "request")
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
-@ToString
 public class ItemRequest {
 
     @Id

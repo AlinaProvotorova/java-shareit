@@ -10,7 +10,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -32,6 +35,7 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +43,10 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -110,6 +117,20 @@ public class ItemServiceTest {
         assertEquals(itemDto.getName(), itemDto2.getName());
     }
 
+    @Test
+    @DisplayName("Тест метода getOwnersItems")
+    void testGetOwnersItems() {
+        Long userId = 1L;
+        int from = 0;
+        int size = 10;
+        User user = new User();
+        List<Item> items = new ArrayList<>();
+        items.add(new Item());
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(itemRepository.findAllByOwnerId(eq(userId), any(Pageable.class))).thenReturn(new ArrayList<>());
+        List<ItemResponseDto> result = itemService.getOwnersItems(from, size, userId);
+        assertEquals(0, result.size());
+    }
 
     @Test
     @DisplayName("Тест на создание Item повторные тесты")
@@ -215,6 +236,13 @@ public class ItemServiceTest {
         assertEquals(item.getDescription(), itemResponseDto2.getDescription());
         assertEquals(item.getAvailable(), itemResponseDto2.getAvailable());
         assertEquals(CommentMapper.listCommentsToListResponse(comments), itemResponseDto.getComments());
+    }
+
+    @Test
+    public void testGetAllItems() {
+        when(itemRepository.findAll()).thenReturn(Collections.emptyList());
+        assertTrue(itemService.getAllItems().isEmpty());
+        verify(itemRepository, times(1)).findAll();
     }
 
     @Test

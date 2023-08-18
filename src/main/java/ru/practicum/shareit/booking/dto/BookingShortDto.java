@@ -12,9 +12,6 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
-@EqualsAndHashCode
-@ToString
 public class BookingShortDto {
 
     @NotNull

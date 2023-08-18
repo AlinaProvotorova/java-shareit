@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
 
 @Builder
 @Getter
-@Setter
-@EqualsAndHashCode
 @ToString
 public class ItemRequestDto {
 

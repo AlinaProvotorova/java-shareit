@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @EqualsAndHashCode
-@ToString
 public class CommentResponseDto {
     private Long id;
     @NotBlank

@@ -11,9 +11,6 @@ import javax.validation.constraints.NotBlank;
 
 @Builder
 @Getter
-@Setter
-@EqualsAndHashCode
-@ToString
 public class CommentDto {
     private Long id;
     @NotBlank

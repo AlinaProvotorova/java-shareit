@@ -22,7 +22,6 @@ import static ru.practicum.shareit.utils.Constants.PATTERN_DATETIME;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-@ToString
 public class BookingRequestDto {
 
     @NotNull
