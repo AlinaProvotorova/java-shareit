@@ -48,10 +48,6 @@ public class CommentMapper {
                 .build();
     }
 
-    public static List<CommentDto> listCommentsToListDto(Collection<Comment> comments) {
-        return comments.stream().map(CommentMapper::commentToDto).collect(Collectors.toList());
-    }
-
     public static List<CommentResponseDto> listCommentsToListResponse(Collection<Comment> comments) {
         return comments.stream().map(CommentMapper::toResponseDto).collect(Collectors.toList());
     }

@@ -11,7 +11,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -43,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -117,16 +116,30 @@ public class ItemServiceTest {
     @Test
     @DisplayName("Тест метода getOwnersItems")
     void testGetOwnersItems() {
-        Long userId = 1L;
-        int from = 0;
-        int size = 10;
         User user = new User();
-        List<Item> items = new ArrayList<>();
-        items.add(new Item());
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(itemRepository.findAllByOwnerId(eq(userId), any(Pageable.class))).thenReturn(new ArrayList<>());
-        List<ItemResponseDto> result = itemService.getOwnersItems(from, size, userId);
-        assertEquals(0, result.size());
+        user.setId(1L);
+        Item item1 = new Item();
+        item1.setId(1L);
+        item1.setName("Item 1");
+        item1.setOwner(user);
+        Item item2 = new Item();
+        item2.setId(2L);
+        item2.setName("Item 2");
+        item2.setOwner(user);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(itemRepository.findAllByOwnerId(1L, PageRequest.of(0, 10))).thenReturn(List.of(item1, item2));
+        when(commentRepository.findAllByItem_Id(any())).thenReturn(new ArrayList<>());
+        when(bookingRepository.findFirstByItemIdAndStartBeforeAndStatusOrderByEndDesc(
+                anyLong(), any(LocalDateTime.class), any(BookingStatus.class))).thenReturn(null);
+        when(bookingRepository.findFirstByItemIdAndStartAfterAndStatusOrderByStartAsc(
+                anyLong(), any(LocalDateTime.class), any(BookingStatus.class))).thenReturn(null);
+        List<ItemResponseDto> result = itemService.getOwnersItems(0, 10, 1L);
+        assertEquals(2, result.size());
+        verify(commentRepository, times(2)).findAllByItem_Id(any());
+        verify(bookingRepository, times(2)).findFirstByItemIdAndStartBeforeAndStatusOrderByEndDesc(
+                anyLong(), any(LocalDateTime.class), any(BookingStatus.class));
+        verify(bookingRepository, times(2)).findFirstByItemIdAndStartAfterAndStatusOrderByStartAsc(
+                anyLong(), any(LocalDateTime.class), any(BookingStatus.class));
     }
 
     @Test
