@@ -58,15 +58,15 @@ public class ItemRequestServiceImp implements ItemRequestService {
             log.info("Получен пустой список ItemRequest для User c ID {} - у него нет запросов.", userId);
             return List.of();
         }
-
         List<ItemRequestResponseDto> itemRequestResponseDto = itemRequest.stream()
-                .map(a -> ItemRequestResponseDto.create(a, ItemMapper.listItemsToListResponseDto(
-                        itemRepository.findAllByRequestIdOrderByIdAsc(a.getRequester().getId()))))
+                .map(a -> {
+                    List<ItemResponseDto> items = ItemMapper.listItemsToListResponseDto(
+                            itemRepository.findAllByRequestIdOrderByIdAsc(a.getId()));
+                    return ItemRequestResponseDto.create(a, items);
+                })
                 .collect(Collectors.toList());
-
         log.info("Получен список ItemRequest вместе с данными об ответах на них для User c ID {}.", userId);
         return itemRequestResponseDto;
-
     }
 
     @Override
