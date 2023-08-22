@@ -41,16 +41,12 @@ public class CommentDtoTest {
         CommentDto commentDto = CommentDto.builder()
                 .id(1L)
                 .text("Всё хорошо")
-                .author(user)
                 .build();
 
         JsonContent<CommentDto> commentDtoJsonContent = jacksonTesterCommentDto.write(commentDto);
 
         assertThat(commentDtoJsonContent).extractingJsonPathNumberValue("$.id").isEqualTo(1);
         assertThat(commentDtoJsonContent).extractingJsonPathStringValue("$.text").isEqualTo("Всё хорошо");
-        assertThat(commentDtoJsonContent).extractingJsonPathNumberValue("$.author.id").isEqualTo(1);
-        assertThat(commentDtoJsonContent).extractingJsonPathStringValue("$.author.name").isEqualTo("Игорь");
-        assertThat(commentDtoJsonContent).extractingJsonPathStringValue("$.author.email").isEqualTo("Super@yandex.ru");
     }
 
     @Test
@@ -64,9 +60,6 @@ public class CommentDtoTest {
 
         assertThat(1L).isEqualTo(commentDto.getId());
         assertThat("Всё хорошо").isEqualTo(commentDto.getText());
-        assertThat(1L).isEqualTo(commentDto.getAuthor().getId());
-        assertThat("Игорь").isEqualTo(commentDto.getAuthor().getName());
-        assertThat("Super@yandex.ru").isEqualTo(commentDto.getAuthor().getEmail());
     }
 
     @Test

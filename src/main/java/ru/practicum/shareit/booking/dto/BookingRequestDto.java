@@ -7,6 +7,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.practicum.shareit.booking.ValidBookingRequest;
+import ru.practicum.shareit.utils.Marker;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
@@ -21,17 +23,18 @@ import static ru.practicum.shareit.utils.Constants.PATTERN_DATETIME;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@ValidBookingRequest
 public class BookingRequestDto {
 
-    @NotNull
+    @NotNull(groups = {Marker.OnCreate.class})
     private Long itemId;
 
-    @NotNull(message = "Не указанно время начала бронирования.")
+    @NotNull(message = "Не указанно время начала бронирования.", groups = {Marker.OnCreate.class})
     @FutureOrPresent(message = "Время начала бронирования не должно быть в прошлом.")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = PATTERN_DATETIME)
     private LocalDateTime start;
 
-    @NotNull(message = "Не указанно время окончания бронирования.")
+    @NotNull(message = "Не указанно время окончания бронирования.", groups = {Marker.OnCreate.class})
     @Future(message = "Время окончания бронирования не должно быть в будущем.")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = PATTERN_DATETIME)
     private LocalDateTime end;

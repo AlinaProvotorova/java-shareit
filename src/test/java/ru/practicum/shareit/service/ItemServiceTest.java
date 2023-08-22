@@ -240,7 +240,7 @@ public class ItemServiceTest {
         userRepository.save(owner);
         userRepository.save(commentator);
         itemService.saveNewItem(owner.getId(), ItemMapper.toItemDto(item));
-        ItemResponseDto itemResponseDto = ItemResponseDto.create(null, null, item, comments);
+        ItemResponseDto itemResponseDto = ItemMapper.listCommenyToItemResponseDto(null, null, item, comments);
         itemResponseDto.setComments(CommentMapper.listCommentsToListResponse(comments));
 
         ItemResponseDto itemResponseDto2 = itemService.getItemById(item.getId(), commentator.getId());
@@ -305,7 +305,7 @@ public class ItemServiceTest {
         User user = new User();
         user.setId(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        List<ItemDto> result = itemService.searchBy(null, 1L, 0, 10);
+        List<ItemDto> result = itemService.searchBy("", 1L, 0, 10);
         assertEquals(0, result.size());
     }
 
@@ -367,9 +367,7 @@ public class ItemServiceTest {
 
         CommentDto result = CommentMapper.commentToDto(comment);
 
-        assertEquals(comment.getId(), result.getId());
         assertEquals(comment.getText(), result.getText());
-        assertEquals(comment.getAuthor(), result.getAuthor());
     }
 
     @Test

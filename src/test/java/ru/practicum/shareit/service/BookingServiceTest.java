@@ -14,12 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingServiceImpl;
+import ru.practicum.shareit.booking.BookingState;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.exceptions.NotFoundException;
-import ru.practicum.shareit.exceptions.UnknownStateException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.User;
@@ -130,7 +130,7 @@ public class BookingServiceTest {
         BookingRequestDto bookingRequestDto = new BookingRequestDto(item.getId(), start, end);
         when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
         when(itemRepository.findById(Mockito.any())).thenReturn(Optional.of(item));
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             bookingServiceImpl.createBooking(bookingRequestDto, user.getId());
         });
     }
@@ -147,7 +147,7 @@ public class BookingServiceTest {
         item.setAvailable(true);
         when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
         when(itemRepository.findById(Mockito.any())).thenReturn(Optional.of(item));
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             bookingServiceImpl.createBooking(bookingRequestDto, 1L);
         });
     }
@@ -181,7 +181,7 @@ public class BookingServiceTest {
         item.setOwner(user);
         when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
         when(itemRepository.findById(Mockito.any())).thenReturn(Optional.of(item));
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             bookingServiceImpl.createBooking(bookingRequestDto, 1L);
         });
     }
@@ -331,7 +331,7 @@ public class BookingServiceTest {
         List<BookingResponseDto> expectedResponse = Arrays.asList(BookingMapper.bookingToResponse(mockBooking1),
                 BookingMapper.bookingToResponse(mockBooking2));
         List<BookingResponseDto> actualResponse = bookingServiceImpl.getUserBookings(
-                1L, "ALL", 0, 10);
+                1L, BookingState.ALL, 0, 10);
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -352,7 +352,7 @@ public class BookingServiceTest {
         List<BookingResponseDto> expectedResponse = Arrays.asList(BookingMapper.bookingToResponse(booking),
                 BookingMapper.bookingToResponse(booking2));
         List<BookingResponseDto> actualResponse = bookingServiceImpl.getUserBookings(
-                1L, "WAITING", 0, 10);
+                1L, BookingState.WAITING, 0, 10);
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -373,7 +373,7 @@ public class BookingServiceTest {
         List<BookingResponseDto> expectedResponse = Arrays.asList(
                 BookingMapper.bookingToResponse(booking), BookingMapper.bookingToResponse(booking2));
         List<BookingResponseDto> actualResponse = bookingServiceImpl.getUserBookings(
-                1L, "REJECTED", 0, 10);
+                1L, BookingState.REJECTED, 0, 10);
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -392,7 +392,7 @@ public class BookingServiceTest {
         List<BookingResponseDto> expectedResponse = Arrays.asList(
                 BookingMapper.bookingToResponse(booking), BookingMapper.bookingToResponse(booking2));
         List<BookingResponseDto> actualResponse = bookingServiceImpl.getUserBookings(
-                1L, "CURRENT", 0, 10);
+                1L, BookingState.CURRENT, 0, 10);
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -410,7 +410,7 @@ public class BookingServiceTest {
         List<BookingResponseDto> expectedResponse = Arrays.asList(
                 BookingMapper.bookingToResponse(booking), BookingMapper.bookingToResponse(booking2));
         List<BookingResponseDto> actualResponse = bookingServiceImpl.getUserBookings(
-                1L, "PAST", 0, 10);
+                1L, BookingState.PAST, 0, 10);
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -428,17 +428,8 @@ public class BookingServiceTest {
         List<BookingResponseDto> expectedResponse = Arrays.asList(
                 BookingMapper.bookingToResponse(booking), BookingMapper.bookingToResponse(booking2));
         List<BookingResponseDto> actualResponse = bookingServiceImpl.getUserBookings(
-                1L, "FUTURE", 0, 10);
+                1L, BookingState.FUTURE, 0, 10);
         assertEquals(expectedResponse, actualResponse);
-    }
-
-    @Test
-    @DisplayName("Тест testGetUserBookingsUnknownState")
-    public void testGetUserBookingsUnknownState() {
-        when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(mockUser1));
-        assertThrows(UnknownStateException.class, () -> {
-            bookingServiceImpl.getUserBookings(1L, "INVALID_STATE", 0, 10);
-        });
     }
 
     @Test
@@ -450,7 +441,7 @@ public class BookingServiceTest {
         List<BookingResponseDto> expectedResponse = Arrays.asList(
                 BookingMapper.bookingToResponse(mockBooking1), BookingMapper.bookingToResponse(mockBooking2));
         List<BookingResponseDto> actualResponse = bookingServiceImpl.getOwnerBookings(
-                1L, "ALL", 0, 10);
+                1L, BookingState.ALL, 0, 10);
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -463,7 +454,7 @@ public class BookingServiceTest {
         List<BookingResponseDto> expectedResponse = Arrays.asList(
                 BookingMapper.bookingToResponse(mockBooking1), BookingMapper.bookingToResponse(mockBooking2));
         List<BookingResponseDto> actualResponse = bookingServiceImpl.getOwnerBookings(
-                1L, "WAITING", 0, 10);
+                1L, BookingState.WAITING, 0, 10);
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -476,7 +467,7 @@ public class BookingServiceTest {
         List<BookingResponseDto> expectedResponse = Arrays.asList(
                 BookingMapper.bookingToResponse(mockBooking1), BookingMapper.bookingToResponse(mockBooking2));
         List<BookingResponseDto> actualResponse = bookingServiceImpl.getOwnerBookings(
-                1L, "REJECTED", 0, 10);
+                1L, BookingState.REJECTED, 0, 10);
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -490,7 +481,7 @@ public class BookingServiceTest {
         List<BookingResponseDto> expectedResponse = Arrays.asList(
                 BookingMapper.bookingToResponse(mockBooking1), BookingMapper.bookingToResponse(mockBooking2));
         List<BookingResponseDto> actualResponse = bookingServiceImpl.getOwnerBookings(
-                1L, "CURRENT", 0, 10);
+                1L, BookingState.CURRENT, 0, 10);
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -503,7 +494,7 @@ public class BookingServiceTest {
         List<BookingResponseDto> expectedResponse = Arrays.asList(
                 BookingMapper.bookingToResponse(mockBooking1), BookingMapper.bookingToResponse(mockBooking2));
         List<BookingResponseDto> actualResponse = bookingServiceImpl.getOwnerBookings(
-                1L, "PAST", 0, 10);
+                1L, BookingState.PAST, 0, 10);
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -521,16 +512,8 @@ public class BookingServiceTest {
         List<BookingResponseDto> expectedResponse = Arrays.asList(
                 BookingMapper.bookingToResponse(booking), BookingMapper.bookingToResponse(booking2));
         List<BookingResponseDto> actualResponse = bookingServiceImpl.getOwnerBookings(
-                1L, "FUTURE", 0, 10);
+                1L, BookingState.FUTURE, 0, 10);
         assertEquals(expectedResponse, actualResponse);
     }
 
-    @Test
-    @DisplayName("Тест testGetOwnerBookingsDefaultCase")
-    public void testGetOwnerBookingsDefaultCase() {
-        when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(mockUser1));
-        assertThrows(UnknownStateException.class, () -> {
-            bookingServiceImpl.getOwnerBookings(1L, "INVALID_STATE", 0, 10);
-        });
-    }
 }

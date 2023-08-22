@@ -3,6 +3,7 @@ package ru.practicum.shareit.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -15,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingController;
 import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.booking.BookingState;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
@@ -30,6 +32,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.practicum.shareit.utils.Constants.HEADER_USER_ID_VALUE;
 
@@ -62,8 +65,8 @@ public class BookingControllerTest {
         Booking booking = mockBooking1;
         BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
                 .itemId(booking.getId())
-                .start(LocalDateTime.now().plusHours(1))
-                .end(LocalDateTime.now().plusMinutes(30))
+                .start(LocalDateTime.now().plusMinutes(30))
+                .end(LocalDateTime.now().plusMinutes(60))
                 .build();
         BookingResponseDto bookingResponseDto = BookingMapper.bookingToResponse(booking);
 
@@ -83,6 +86,27 @@ public class BookingControllerTest {
                 .andDo(print());
         Mockito.verify(bookingService).createBooking(bookingRequestDto, 1L);
     }
+
+    @Test
+    @DisplayName("Тест на эндпоинт @PostMapping создания Booking с невалидными данными")
+    @SneakyThrows
+    void bookingCreateValidationTest() {
+        BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
+                .itemId(null)
+                .start(LocalDateTime.now().plusMinutes(30))
+                .end(LocalDateTime.now().plusMinutes(20))
+                .build();
+
+        mockMvc.perform(post("/bookings")
+                        .header(HEADER_USER_ID_VALUE, 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(bookingRequestDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
 
     @Test
     @DisplayName("Тест на эндпоинт @PatchMapping подтврждение Booking от Owner")
@@ -124,7 +148,7 @@ public class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        verify(bookingService).getUserBookings(user.getId(), "ALL", 0, 10);
+        verify(bookingService).getUserBookings(user.getId(), BookingState.ALL, 0, 10);
     }
 
     @Test
@@ -137,7 +161,7 @@ public class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        verify(bookingService).getOwnerBookings(user.getId(), "ALL", 0, 10);
+        verify(bookingService).getOwnerBookings(user.getId(), BookingState.ALL, 0, 10);
     }
 
 }

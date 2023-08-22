@@ -3,11 +3,10 @@ package ru.practicum.shareit.item;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Component;
+import ru.practicum.shareit.request.ItemRequest;
 
 import java.util.List;
 
-@Component
 public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query(value = "select * " +
             "from ITEMS " +
@@ -22,5 +21,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByText(String text, Pageable pageable);
 
     List<Item> findAllByRequestIdOrderByIdAsc(Long requestId);
+
+    List<Item> findByRequestIn(List<ItemRequest> requests);
 
 }

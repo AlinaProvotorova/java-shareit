@@ -13,6 +13,7 @@ import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.Comment;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.user.User;
 
@@ -109,7 +110,7 @@ public class ItemDtoTest {
                 .status(BookingStatus.APPROVED)
                 .build();
 
-        ItemResponseDto itemResponseDto = ItemResponseDto.create(last, next, item, List.of(comment));
+        ItemResponseDto itemResponseDto = ItemMapper.listCommenyToItemResponseDto(last, next, item, List.of(comment));
         JsonContent<ItemResponseDto> itemResponseDtoJsonContent = jacksonTesterItemResponseDto.write(itemResponseDto);
 
 

@@ -3,7 +3,6 @@ package ru.practicum.shareit.request.dto;
 import lombok.Builder;
 import lombok.Getter;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
-import ru.practicum.shareit.request.ItemRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,13 +15,5 @@ public class ItemRequestResponseDto {
     private LocalDateTime created;
     private List<ItemResponseDto> items;
 
-    public static ItemRequestResponseDto create(ItemRequest itemRequest, List<ItemResponseDto> items) {
-        return ItemRequestResponseDto.builder()
-                .id(itemRequest.getId())
-                .description(itemRequest.getDescription())
-                .created(itemRequest.getCreated())
-                .items(items)
-                .build();
-    }
 
 }

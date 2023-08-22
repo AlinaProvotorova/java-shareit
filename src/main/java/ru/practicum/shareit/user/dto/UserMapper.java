@@ -1,10 +1,12 @@
 package ru.practicum.shareit.user.dto;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.user.User;
 
+@UtilityClass
 public class UserMapper {
 
-    public static UserDto toUserDto(User user) {
+    public UserDto toUserDto(User user) {
         if (user == null) {
             throw new IllegalArgumentException("User не может быть null");
         }
@@ -15,7 +17,7 @@ public class UserMapper {
                 .build();
     }
 
-    public static User dtoToUser(UserDto userDto) {
+    public User dtoToUser(UserDto userDto) {
         if (userDto == null) {
             throw new IllegalArgumentException("UserDto не может быть null.");
         }
@@ -25,7 +27,7 @@ public class UserMapper {
                 .build();
     }
 
-    public static User dtoToUser(UserDto userDto, User user) {
+    public User dtoToUser(UserDto userDto, User user) {
         if (userDto == null) {
             throw new IllegalArgumentException("UserDto не может быть null.");
         }

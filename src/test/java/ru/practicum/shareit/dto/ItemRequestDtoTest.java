@@ -12,9 +12,11 @@ import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.Comment;
 import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.user.User;
 
@@ -41,14 +43,12 @@ public class ItemRequestDtoTest {
         ItemRequestDto itemRequestDto = ItemRequestDto.builder()
                 .id(1L)
                 .description("Нужна дрель")
-                .created(LocalDateTime.of(2023, 5, 12, 12, 12, 0))
                 .build();
 
         JsonContent<ItemRequestDto> itemRequestDtoJsonContent = jacksonTesterItemRequestDto.write(itemRequestDto);
 
         assertThat(itemRequestDtoJsonContent).extractingJsonPathNumberValue("$.id").isEqualTo(1);
         assertThat(itemRequestDtoJsonContent).extractingJsonPathStringValue("$.description").isEqualTo("Нужна дрель");
-        assertThat(itemRequestDtoJsonContent).extractingJsonPathStringValue("$.created").isEqualTo("2023-05-12T12:12:00");
     }
 
     @Test
@@ -62,7 +62,6 @@ public class ItemRequestDtoTest {
 
         assertThat(1L).isEqualTo(itemRequestDto.getId());
         assertThat("Нужна дрель").isEqualTo(itemRequestDto.getDescription());
-        assertThat("2023-05-12T12:12").isEqualTo(itemRequestDto.getCreated().toString());
     }
 
     @Test
@@ -118,7 +117,7 @@ public class ItemRequestDtoTest {
                 .status(BookingStatus.APPROVED)
                 .build();
 
-        ItemResponseDto itemResponseDto = ItemResponseDto.create(last, next, item, List.of(comment));
+        ItemResponseDto itemResponseDto = ItemMapper.listCommenyToItemResponseDto(last, next, item, List.of(comment));
 
         ItemRequest itemRequest = ItemRequest.builder()
                 .id(1L)
@@ -128,7 +127,7 @@ public class ItemRequestDtoTest {
                 .build();
 
 
-        ItemRequestResponseDto itemRequestResponseDto = ItemRequestResponseDto.create(itemRequest, List.of(itemResponseDto));
+        ItemRequestResponseDto itemRequestResponseDto = ItemRequestMapper.listItemResponseToItemRequestResponse(itemRequest, List.of(itemResponseDto));
 
         JsonContent<ItemRequestResponseDto> itemRequestResponseDtoJsonContent = jacksonTesterItemRequestResponseDto.write(itemRequestResponseDto);
 

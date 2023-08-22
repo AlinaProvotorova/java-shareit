@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -16,9 +17,9 @@ import ru.practicum.shareit.item.dto.CommentResponseDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.utils.Constants;
+import ru.practicum.shareit.utils.Marker;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/items")
+@Validated
 public class ItemController {
     private final ItemService itemService;
 
@@ -53,7 +55,7 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDto> searchBy(
-            @RequestParam(value = "text") @NotBlank String text,
+            @RequestParam(value = "text") String text,
             @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId,
             @RequestParam(defaultValue = "0", required = false) @PositiveOrZero int from,
             @RequestParam(defaultValue = "10", required = false) @Positive int size
@@ -61,12 +63,14 @@ public class ItemController {
         return itemService.searchBy(text, userId, from, size);
     }
 
+    @Validated(Marker.OnCreate.class)
     @PostMapping
     public ItemDto saveNewItem(@RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId,
                                @Valid @RequestBody ItemDto item) {
         return itemService.saveNewItem(userId, item);
     }
 
+    @Validated(Marker.OnUpdate.class)
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable @Positive Long itemId,
                               @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId,
@@ -83,9 +87,10 @@ public class ItemController {
         return String.format("Вещь для бронирования с ID %d удалена", id);
     }
 
+    @Validated(Marker.OnCreate.class)
     @PostMapping("/{itemId}/comment")
     public CommentResponseDto addComment(@PathVariable("itemId") @Positive long itemId,
-                                         @RequestHeader(value = "X-Sharer-User-Id") @Positive Long userId,
+                                         @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) @Positive Long userId,
                                          @Valid @RequestBody CommentDto commentDto) {
         return itemService.addComment(commentDto, itemId, userId);
     }

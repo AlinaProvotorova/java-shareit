@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
@@ -18,7 +19,9 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.utils.Constants.ITEM_REQUEST_NOT_FOUND;
@@ -35,7 +38,7 @@ public class ItemRequestServiceImp implements ItemRequestService {
 
     @Override
     @Transactional
-    public ItemRequestDto create(ItemRequestDto itemRequestDto, Long userId) {
+    public ItemRequestResponseDto create(ItemRequestDto itemRequestDto, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND, userId)));
         ItemRequest itemRequest = ItemRequestMapper.dtoToItemRequest(itemRequestDto);
@@ -45,7 +48,7 @@ public class ItemRequestServiceImp implements ItemRequestService {
         log.info("itemRequestDto {} сохранён.", itemRequestDto);
 
         itemRequestRepository.save(itemRequest);
-        return ItemRequestMapper.itemRequestToDto(itemRequest);
+        return ItemRequestMapper.toItemRequestResponse(itemRequest);
     }
 
     @Override
@@ -53,21 +56,17 @@ public class ItemRequestServiceImp implements ItemRequestService {
         userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(String.format(USER_NOT_FOUND, userId))
         );
-        List<ItemRequest> itemRequest = itemRequestRepository.findAllByRequester_idOrderByCreatedAsc(userId);
-        if (itemRequest.isEmpty()) {
+        List<ItemRequest> requests = itemRequestRepository.findAllByRequester_idOrderByCreatedAsc(userId);
+        if (requests.isEmpty()) {
             log.info("Получен пустой список ItemRequest для User c ID {} - у него нет запросов.", userId);
             return List.of();
         }
-        List<ItemRequestResponseDto> itemRequestResponseDto = itemRequest.stream()
-                .map(a -> {
-                    List<ItemResponseDto> items = ItemMapper.listItemsToListResponseDto(
-                            itemRepository.findAllByRequestIdOrderByIdAsc(a.getId()));
-                    return ItemRequestResponseDto.create(a, items);
-                })
-                .collect(Collectors.toList());
+        List<ItemRequestResponseDto> itemResponseDtos = processItemRequests(requests, userId);
+
         log.info("Получен список ItemRequest вместе с данными об ответах на них для User c ID {}.", userId);
-        return itemRequestResponseDto;
+        return itemResponseDtos;
     }
+
 
     @Override
     public List<ItemRequestResponseDto> getAllRequests(int from, int size, long userId) {
@@ -76,11 +75,10 @@ public class ItemRequestServiceImp implements ItemRequestService {
         );
         Pageable pageable = PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "created"));
 
-        List<ItemRequestResponseDto> itemResponseDtos = (itemRequestRepository.findAllByRequester_IdNotIn(
-                List.of(userId), pageable).getContent()).stream()
-                .map(a -> ItemRequestResponseDto.create(a, ItemMapper.listItemsToListResponseDto(
-                        itemRepository.findAllByRequestIdOrderByIdAsc(a.getId()))))
-                .collect(Collectors.toList());
+        List<ItemRequest> requests = itemRequestRepository.findAllByRequester_IdNotIn(
+                List.of(userId), pageable).getContent();
+
+        List<ItemRequestResponseDto> itemResponseDtos = processItemRequests(requests, userId);
         log.info("Получен полный список ItemRequest по запросу от User c ID {}.", userId);
         return itemResponseDtos;
     }
@@ -97,8 +95,23 @@ public class ItemRequestServiceImp implements ItemRequestService {
                 itemRepository.findAllByRequestIdOrderByIdAsc(requestId));
 
         log.info("Получен ItemRequest с ID {} по запросу от User c ID {}.", requestId, userId);
-        return ItemRequestResponseDto.create(itemRequest, items);
+        return ItemRequestMapper.listItemResponseToItemRequestResponse(itemRequest, items);
     }
 
+    private List<ItemRequestResponseDto> processItemRequests(List<ItemRequest> requests, long userId) {
+        if (requests.isEmpty()) {
+            log.info("Получен пустой список ItemRequest для User c ID {} - у него нет запросов.", userId);
+            return List.of();
+        }
+
+        Map<Long, List<Item>> itemsByRequestId = itemRepository.findByRequestIn(requests)
+                .stream()
+                .collect(Collectors.groupingBy(i -> i.getRequest().getId(), Collectors.toList()));
+
+        return requests.stream()
+                .map(a -> ItemRequestMapper.listItemResponseToItemRequestResponse(a, ItemMapper.listItemsToListResponseDto(
+                        itemsByRequestId.getOrDefault(a.getId(), Collections.emptyList()))))
+                .collect(Collectors.toList());
+    }
 
 }

@@ -20,6 +20,7 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.utils.Constants;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -52,11 +53,11 @@ public class ItemRequestControllerTest {
         ItemRequest itemRequest = mockItemRequest1;
         ItemRequestDto itemRequestDto = ItemRequestMapper.itemRequestToDto(itemRequest);
         ItemRequestResponseDto itemRequestResponseDto = ItemRequestMapper.toItemRequestResponse(itemRequest);
-        when(itemRequestService.create(Mockito.any(), Mockito.any())).thenReturn(itemRequestDto);
+        when(itemRequestService.create(Mockito.any(), Mockito.any())).thenReturn(itemRequestResponseDto);
         when((itemRequestService.getById(Mockito.any(), Mockito.any()))).thenReturn(itemRequestResponseDto);
         itemRequestService.create(itemRequestDto, 1L);
         mockMvc.perform(post("/requests")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(Constants.HEADER_USER_ID_VALUE, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(itemRequestDto))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -73,7 +74,7 @@ public class ItemRequestControllerTest {
     void getAllForRequesterTest() {
         User requester = mockUser1;
         mockMvc.perform(get("/requests")
-                        .header("X-Sharer-User-Id", requester.getId()))
+                        .header(Constants.HEADER_USER_ID_VALUE, requester.getId()))
                 .andDo(print())
                 .andExpect(status().isOk());
         verify(itemRequestService).getAllForRequester(requester.getId());
@@ -85,7 +86,7 @@ public class ItemRequestControllerTest {
     void getAllTest() {
         User user = mockUser1;
         mockMvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", user.getId()))
+                        .header(Constants.HEADER_USER_ID_VALUE, user.getId()))
                 .andDo(print())
                 .andExpect(status().isOk());
         verify(itemRequestService).getAllRequests(0, 20, user.getId());
@@ -98,7 +99,7 @@ public class ItemRequestControllerTest {
         User user = mockUser1;
         ItemRequest itemRequest = mockItemRequest1;
         mockMvc.perform(get("/requests/{requestId}", itemRequest.getId())
-                        .header("X-Sharer-User-Id", user.getId()))
+                        .header(Constants.HEADER_USER_ID_VALUE, user.getId()))
                 .andDo(print())
                 .andExpect(status().isOk());
         verify(itemRequestService).getById(itemRequest.getId(), user.getId());

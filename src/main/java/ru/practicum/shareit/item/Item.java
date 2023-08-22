@@ -37,7 +37,9 @@ public class Item {
     @Column(name = "is_available", nullable = false)
     private Boolean available;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ToString.Exclude
     private User owner;
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     private ItemRequest request;
 }

@@ -6,8 +6,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.shareit.exceptions.EmailDuplicateException;
 import ru.practicum.shareit.exceptions.ErrorMessage;
 import ru.practicum.shareit.exceptions.NotFoundException;
@@ -16,9 +14,6 @@ import ru.practicum.shareit.exceptions.UnknownStateException;
 import javax.validation.ConstraintViolationException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class ErrorHandlerTest {
 
@@ -44,7 +39,7 @@ class ErrorHandlerTest {
     @Test
     void testConstraintViolationException() {
         ConstraintViolationException exception = new ConstraintViolationException("Constraint violation", null);
-        ErrorMessage result = errorHandler.constraintViolationException(exception);
+        ErrorMessage result = errorHandler.handleBadRequestException(exception);
 
         assertEquals("Constraint violation", result.getError());
     }
@@ -52,7 +47,7 @@ class ErrorHandlerTest {
     @Test
     void testUnknownStateException() {
         UnknownStateException exception = new UnknownStateException("Unknown state");
-        ErrorMessage result = errorHandler.unknownStateException(exception);
+        ErrorMessage result = errorHandler.handleBadRequestException(exception);
 
         assertEquals("Unknown state: Unknown state", result.getError());
     }
@@ -68,20 +63,8 @@ class ErrorHandlerTest {
     @Test
     void testIllegalArgumentException() {
         IllegalArgumentException exception = new IllegalArgumentException("Invalid argument");
-        ErrorMessage result = errorHandler.illegalArgumentException(exception);
+        ErrorMessage result = errorHandler.handleBadRequestException(exception);
 
         assertEquals("Invalid argument", result.getError());
-    }
-
-    @Test
-    void testMethodArgumentNotValidException() {
-        when(bindingResult.getFieldError()).thenReturn(new FieldError("objectName", "fieldName", "Field error"));
-
-        MethodArgumentNotValidException exception = new MethodArgumentNotValidException(null, bindingResult);
-        ErrorMessage result = errorHandler.defaultHandlerExceptionResolver(exception);
-
-        assertEquals("fieldName Field error", result.getError());
-
-        verify(bindingResult, times(2)).getFieldError();
     }
 }

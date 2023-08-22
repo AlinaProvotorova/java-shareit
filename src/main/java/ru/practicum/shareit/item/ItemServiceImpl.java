@@ -54,7 +54,7 @@ public class ItemServiceImpl implements ItemService {
                 item.getId(), LocalDateTime.now(), BookingStatus.APPROVED);
         Booking nextBooking = bookingRepository.findFirstByItemIdAndStartAfterAndStatusOrderByStartAsc(
                 item.getId(), LocalDateTime.now(), BookingStatus.APPROVED);
-        return ItemResponseDto.create(lastBooking, nextBooking, item, comments);
+        return ItemMapper.listCommenyToItemResponseDto(lastBooking, nextBooking, item, comments);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class ItemServiceImpl implements ItemService {
         userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(String.format(USER_NOT_FOUND, userId))
         );
-        if (text == null || text.trim().isEmpty()) {
+        if (text.trim().isEmpty()) {
             log.info("Получен пустой лист поиска по запросу User ID {}.", userId);
             return Collections.emptyList();
         }
@@ -100,7 +100,7 @@ public class ItemServiceImpl implements ItemService {
         Booking nextBooking = bookingRepository.findFirstByItemIdAndStartAfterAndStatusOrderByStartAsc(item.getId(),
                 LocalDateTime.now(), BookingStatus.APPROVED);
         if (item.getOwner().getId().equals(userId)) {
-            ItemResponseDto itemResponseDto = ItemResponseDto.create(lastBooking, nextBooking, item, comments);
+            ItemResponseDto itemResponseDto = ItemMapper.listCommenyToItemResponseDto(lastBooking, nextBooking, item, comments);
             log.info("Item с ID {} получена для User Owner с ID {}.", id, userId);
             return itemResponseDto;
         }
@@ -162,6 +162,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public CommentResponseDto addComment(CommentDto commentDto, long itemId, long userId) {
+        log.info("Добавлен Comment");
         if (bookingRepository.findAllByBooker_IdAndItem_IdAndEndBefore(userId, itemId, LocalDateTime.now()).isEmpty()) {
             throw new IllegalArgumentException("Оставлять Comment может только User, у которого есть завершённый Booking для данного Item");
         }

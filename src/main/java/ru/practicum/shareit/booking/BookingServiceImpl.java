@@ -43,7 +43,7 @@ public class BookingServiceImpl implements BookingService {
         Item item = itemRepository.findById(bookingRequest.getItemId()).orElseThrow(
                 () -> new NotFoundException(String.format(ITEM_NOT_FOUND, bookingRequest.getItemId()))
         );
-        BookingValidate.validateBookingRequest(bookingRequest, item, user);
+        BookingValidate.validateItemAndUserForBooking(item, user);
         Booking booking = BookingMapper.requestToBooking(bookingRequest);
         booking.setStatus(BookingStatus.WAITING);
         booking.setBooker(user);
@@ -62,7 +62,7 @@ public class BookingServiceImpl implements BookingService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(String.format(USER_NOT_FOUND, userId))
         );
-        BookingValidate.validateBookingStatusUpdate(booking, user, approved);
+        BookingValidate.validateBookingStatusUpdate(booking, user);
         if (approved) {
             booking.setStatus(BookingStatus.APPROVED);
             log.info("UserOwner c ID {} подтвердил (APPROVED) запрос на Booking с id = {} ", userId,
@@ -88,70 +88,70 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponseDto> getUserBookings(Long userId, String state, int from, int size) {
+    public List<BookingResponseDto> getUserBookings(Long userId, BookingState state, int from, int size) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(String.format(USER_NOT_FOUND, userId))
         );
         List<Booking> bookList;
         Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start"));
         switch (state) {
-            case "ALL":
+            case ALL:
                 bookList = bookingRepository.findBookingByBookerOrderByStartDesc(user, pageable);
                 break;
-            case "WAITING":
-            case "REJECTED":
+            case WAITING:
+            case REJECTED:
                 bookList = bookingRepository.findBookingByBookerAndStatusOrderByStartDesc(user,
-                        BookingStatus.valueOf(state), pageable);
+                        BookingStatus.valueOf(state.name()), pageable);
                 break;
-            case "CURRENT":
+            case CURRENT:
                 LocalDateTime dateTime = LocalDateTime.now();
                 bookList = bookingRepository.findBookingByBookerAndStartBeforeAndEndAfterOrderByStartDesc(user,
                         dateTime, dateTime, pageable);
                 break;
-            case "PAST":
+            case PAST:
                 LocalDateTime dateTime1 = LocalDateTime.now();
                 bookList = bookingRepository.findBookingByBookerAndEndBeforeOrderByStartDesc(user, dateTime1, pageable);
                 break;
-            case "FUTURE":
+            case FUTURE:
                 LocalDateTime dateTime2 = LocalDateTime.now();
                 bookList = bookingRepository.findBookingByBookerAndStartAfterOrderByStartDesc(user, dateTime2, pageable);
                 break;
             default:
-                throw new UnknownStateException(state);
+                throw new UnknownStateException(state.name());
         }
         return bookList.stream().map(BookingMapper::bookingToResponse).collect(Collectors.toList());
     }
 
 
     @Override
-    public List<BookingResponseDto> getOwnerBookings(Long userId, String state, int from, int size) {
+    public List<BookingResponseDto> getOwnerBookings(Long userId, BookingState state, int from, int size) {
         userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(String.format(USER_NOT_FOUND, userId))
         );
         List<Booking> bookList;
         Pageable pageable = PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start"));
         switch (state) {
-            case "ALL":
+            case ALL:
                 bookList = bookingRepository.getAllBookingsForOwner(userId, pageable);
                 break;
-            case "WAITING":
-            case "REJECTED":
-                bookList = bookingRepository.getBookingsForOwnerByStatus(userId, BookingStatus.valueOf(state), pageable);
+            case WAITING:
+            case REJECTED:
+                bookList = bookingRepository.getBookingsForOwnerByStatus(userId, BookingStatus.valueOf(state.name()), pageable);
                 break;
-            case "CURRENT":
+            case CURRENT:
                 LocalDateTime dateTime = LocalDateTime.now();
                 bookList = bookingRepository.getCurrentBookingForOwner(userId, dateTime, dateTime, pageable);
                 break;
-            case "PAST":
+            case PAST:
                 LocalDateTime dateTime1 = LocalDateTime.now();
                 bookList = bookingRepository.getPastBookingForOwner(userId, dateTime1, pageable);
                 break;
-            case "FUTURE":
+            case FUTURE:
                 LocalDateTime dateTime2 = LocalDateTime.now();
                 bookList = bookingRepository.getFutureBookingForOwner(userId, dateTime2, pageable);
                 break;
             default:
-                throw new UnknownStateException(state);
+                throw new UnknownStateException(state.name());
         }
         return bookList.stream().map(BookingMapper::bookingToResponse).collect(Collectors.toList());
     }

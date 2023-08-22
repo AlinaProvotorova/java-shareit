@@ -12,6 +12,7 @@ import org.mockito.MockitoSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exceptions.NotFoundException;
@@ -27,7 +28,6 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -95,11 +95,11 @@ public class ItemRequestServiceTest {
         ItemRequestDto itemRequestDto = ItemRequestMapper.itemRequestToDto(mockItemRequest1);
         when(itemRequestRepository.save(any())).thenReturn(mockItemRequest1);
         when(userRepository.findById(any())).thenReturn(Optional.of(mockUser1));
-        ItemRequestDto itemRequestDto2 = itemRequestServiceImp.create(itemRequestDto, mockUser1.getId());
+        ItemRequestResponseDto itemRequestResponseDto = itemRequestServiceImp.create(itemRequestDto, mockUser1.getId());
         verify(itemRepository, never()).save(mockItem1);
-        assertNotNull(itemRequestDto2);
-        assertEquals(itemRequestDto.getId(), itemRequestDto2.getId());
-        assertEquals(itemRequestDto.getDescription(), itemRequestDto2.getDescription());
+        assertNotNull(itemRequestResponseDto);
+        assertEquals(itemRequestDto.getId(), itemRequestResponseDto.getId());
+        assertEquals(itemRequestDto.getDescription(), itemRequestResponseDto.getDescription());
     }
 
     @Test
@@ -121,7 +121,6 @@ public class ItemRequestServiceTest {
         List<ItemRequest> itemRequests = List.of(itemRequest);
         when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
         when(itemRequestRepository.findAllByRequester_idOrderByCreatedAsc(Mockito.any())).thenReturn(itemRequests);
-        when(itemRepository.findAllByRequestIdOrderByIdAsc(Mockito.any())).thenReturn(List.of());
         List<ItemRequestResponseDto> result = itemRequestServiceImp.getAllForRequester(user.getId());
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -146,15 +145,10 @@ public class ItemRequestServiceTest {
         itemRequest1.setRequester(user);
         ItemRequest itemRequest2 = mockItemRequest2;
         List<ItemRequest> itemRequests = List.of(itemRequest1, itemRequest2);
-        Item item1 = mockItem1;
-        Item item2 = mockItem2;
-        List<Item> items = List.of(item1, item2);
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-        when(itemRequestRepository.findAllByRequester_IdNotIn(List.of(user.getId()),
-                PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "created"))))
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "created"));
+        when(itemRequestRepository.findAllByRequester_IdNotIn(List.of(user.getId()), pageable))
                 .thenReturn(new PageImpl<>(itemRequests));
-        when(itemRepository.findAllByRequestIdOrderByIdAsc(1L)).thenReturn(items);
-        when(itemRepository.findAllByRequestIdOrderByIdAsc(2L)).thenReturn(new ArrayList<>());
         List<ItemRequestResponseDto> result = itemRequestServiceImp.getAllRequests(0, 10, user.getId());
         assertNotNull(result);
         assertEquals(2, result.size());

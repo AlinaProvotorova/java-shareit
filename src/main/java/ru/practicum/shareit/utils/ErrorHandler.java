@@ -22,31 +22,25 @@ public class ErrorHandler {
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorMessage notFoundException(final NotFoundException e) {
+        log.error("Resource not found: {}", e.getMessage(), e);
         return new ErrorMessage(e.getMessage());
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
+    @ExceptionHandler({
+            ConstraintViolationException.class,
+            UnknownStateException.class,
+            IllegalArgumentException.class
+    })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorMessage constraintViolationException(final ConstraintViolationException e) {
+    public ErrorMessage handleBadRequestException(final RuntimeException e) {
+        log.error("Bad request: {}", e.getMessage(), e);
         return new ErrorMessage(e.getMessage());
-    }
-
-    @ExceptionHandler(UnknownStateException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorMessage unknownStateException(final UnknownStateException e) {
-        return new ErrorMessage("Unknown state: " + e.getMessage());
     }
 
     @ResponseStatus(value = HttpStatus.CONFLICT)
     @ExceptionHandler(EmailDuplicateException.class)
     public ErrorMessage emailDuplicateException(final EmailDuplicateException e) {
-        return new ErrorMessage(e.getMessage());
-    }
-
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ErrorMessage illegalArgumentException(final IllegalArgumentException e) {
-        log.info(e.getMessage());
+        log.error("Email duplicate: {}", e.getMessage(), e);
         return new ErrorMessage(e.getMessage());
     }
 
@@ -56,7 +50,7 @@ public class ErrorHandler {
         BindingResult result = e.getBindingResult();
         String errorMessage = Objects.requireNonNull(
                 result.getFieldError()).getField() + " " + result.getFieldError().getDefaultMessage();
-        log.info(errorMessage);
+        log.error("Validation error: {}", errorMessage, e);
         return new ErrorMessage(errorMessage);
     }
 }

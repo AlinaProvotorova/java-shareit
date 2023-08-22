@@ -28,6 +28,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.utils.Constants;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -86,7 +87,7 @@ public class ItemControllerTest {
         User owner = mockUser1;
         mockItem2.setOwner(owner);
         mockMvc.perform(MockMvcRequestBuilders.get("/items?from={from}&size={size}", 3, 2)
-                        .header("X-Sharer-User-Id", owner.getId()))
+                        .header(Constants.HEADER_USER_ID_VALUE, owner.getId()))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk());
         verify(itemService).getOwnersItems(3, 2, owner.getId());
@@ -97,12 +98,12 @@ public class ItemControllerTest {
     @SneakyThrows
     void getItemByIdTest() {
         ItemDto itemDto = ItemMapper.toItemDto(mockItem1);
-        ItemResponseDto itemResponseDto = ItemResponseDto.create(mockBooking1, mockBooking2, mockItem1, List.of());
+        ItemResponseDto itemResponseDto = ItemMapper.listCommenyToItemResponseDto(mockBooking1, mockBooking2, mockItem1, List.of());
         when(itemService.saveNewItem(Mockito.any(), Mockito.any())).thenReturn(itemDto);
         when((itemService.getItemById(Mockito.any(), Mockito.any()))).thenReturn(itemResponseDto);
         itemService.saveNewItem(1L, itemDto);
         mockMvc.perform(MockMvcRequestBuilders.get("/items/{itemId}", itemDto.getId())
-                        .header("X-Sharer-User-Id", 1L))
+                        .header(Constants.HEADER_USER_ID_VALUE, 1L))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk());
         verify(itemService).getItemById(itemDto.getId(), 1L);
@@ -116,7 +117,7 @@ public class ItemControllerTest {
                         .param("from", "0")
                         .param("size", "10")
                         .param("text", "Серп")
-                        .header("X-Sharer-User-Id", mockUser1.getId()))
+                        .header(Constants.HEADER_USER_ID_VALUE, mockUser1.getId()))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk());
         verify(itemService).searchBy("Серп", 1L, 0, 10);
@@ -127,11 +128,11 @@ public class ItemControllerTest {
     @SneakyThrows
     void saveNewItemTest() {
         ItemDto itemDto = ItemMapper.toItemDto(mockItem1);
-        ItemResponseDto itemResponseDto = ItemResponseDto.create(mockBooking1, mockBooking2, mockItem1, List.of());
+        ItemResponseDto itemResponseDto = ItemMapper.listCommenyToItemResponseDto(mockBooking1, mockBooking2, mockItem1, List.of());
         when(itemService.saveNewItem(Mockito.any(), Mockito.any())).thenReturn(itemDto);
         when((itemService.getItemById(Mockito.any(), Mockito.any()))).thenReturn(itemResponseDto);
         mockMvc.perform(MockMvcRequestBuilders.post("/items")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(Constants.HEADER_USER_ID_VALUE, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(itemDto))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -147,13 +148,13 @@ public class ItemControllerTest {
     @SneakyThrows
     void updateItemTest() {
         ItemDto itemDto = ItemMapper.toItemDto(mockItem1);
-        ItemResponseDto itemResponseDto = ItemResponseDto.create(mockBooking1, mockBooking2, mockItem1, List.of());
+        ItemResponseDto itemResponseDto = ItemMapper.listCommenyToItemResponseDto(mockBooking1, mockBooking2, mockItem1, List.of());
         when(itemService.saveNewItem(Mockito.any(), Mockito.any())).thenReturn(itemDto);
         when((itemService.getItemById(Mockito.any(), Mockito.any()))).thenReturn(itemResponseDto);
         when((itemService.updateItem(Mockito.anyLong(), Mockito.anyLong(), Mockito.any(ItemDto.class)))).thenReturn(itemDto);
         itemService.saveNewItem(1L, itemDto);
         mockMvc.perform(MockMvcRequestBuilders.patch("/items/{itemId}", 1L)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(Constants.HEADER_USER_ID_VALUE, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(itemDto))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -168,12 +169,12 @@ public class ItemControllerTest {
     @SneakyThrows
     void deleteItemTest() {
         ItemDto itemDto = ItemMapper.toItemDto(mockItem1);
-        ItemResponseDto itemResponseDto = ItemResponseDto.create(mockBooking1, mockBooking2, mockItem1, List.of());
+        ItemResponseDto itemResponseDto = ItemMapper.listCommenyToItemResponseDto(mockBooking1, mockBooking2, mockItem1, List.of());
         when(itemService.saveNewItem(Mockito.any(), Mockito.any())).thenReturn(itemDto);
         when((itemService.getItemById(Mockito.any(), Mockito.any()))).thenReturn(itemResponseDto);
         itemService.saveNewItem(1L, itemDto);
         mockMvc.perform(MockMvcRequestBuilders.delete("/items/{itemId}", 1L)
-                        .header("X-Sharer-User-Id", 1L))
+                        .header(Constants.HEADER_USER_ID_VALUE, 1L))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk());
         verify(itemService).deleteItem(1L, 1L);
@@ -183,7 +184,7 @@ public class ItemControllerTest {
     @Test
     @DisplayName("Тест на эндпоинт @PostMapping создания Comment")
     @SneakyThrows
-    void addCommentTest() {
+    void addCommentValidationTest() {
         Comment comment = Comment.builder()
                 .id(1L)
                 .text("Comment")
@@ -194,12 +195,37 @@ public class ItemControllerTest {
         when(itemService.addComment(ArgumentMatchers.any(), ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong()))
                 .thenReturn(commentResponseDto);
         mockMvc.perform(MockMvcRequestBuilders.post("/items/{itemId}/comment", 1L)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(Constants.HEADER_USER_ID_VALUE, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(commentResponseDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+    }
+
+    @Test
+    @DisplayName("Тест на эндпоинт @PostMapping создания Comment с невалидными данными")
+    @SneakyThrows
+    void addCommentTest() {
+        Comment comment = Comment.builder()
+                .id(1L)
+                .text(null)
+                .item(mockItem1)
+                .author(mockUser1)
+                .build();
+        CommentResponseDto commentResponseDto = CommentMapper.toResponseDto(comment);
+        when(itemService.addComment(ArgumentMatchers.any(), ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong()))
+                .thenReturn(commentResponseDto);
+        mockMvc.perform(MockMvcRequestBuilders.post("/items/{itemId}/comment", 1L)
+                        .header(Constants.HEADER_USER_ID_VALUE, 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentResponseDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
