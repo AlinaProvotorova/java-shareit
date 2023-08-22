@@ -150,6 +150,19 @@ public class BookingControllerTest {
     }
 
     @Test
+    @DisplayName("Тест на эндпоинт @GetMapping с недопустимым значением state")
+    @SneakyThrows
+    void getUserBookingsUnknownStateTest() {
+        String invalidState = "INVALID_STATE";
+
+        mockMvc.perform(get("/bookings")
+                        .header(HEADER_USER_ID_VALUE, mockUser1.getId())
+                        .param("state", invalidState))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
     @DisplayName("Тест на эндпоинт @GetMapping получение всех своих Booking от User owner")
     @SneakyThrows
     void getOwnerBookingsTest() {
@@ -160,6 +173,19 @@ public class BookingControllerTest {
                 .andDo(print());
 
         verify(bookingService).getOwnerBookings(user.getId(), BookingState.ALL, 0, 10);
+    }
+
+    @Test
+    @DisplayName("Тест на эндпоинт @GetMapping с недопустимым значением state")
+    @SneakyThrows
+    void getOwnerBookingsUnknownStateTest() {
+        String invalidState = "INVALID_STATE";
+
+        mockMvc.perform(get("/bookings/owner")
+                        .header(HEADER_USER_ID_VALUE, mockUser1.getId())
+                        .param("state", invalidState))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
     }
 
 }

@@ -201,11 +201,34 @@ public class BookingServiceTest {
     }
 
     @Test
+    @DisplayName("Тест testUpdateBookingStatusBooking_Success2")
+    void testUpdateBookingStatusBooking_Success2() {
+        Booking booking = mockBooking1;
+        booking.setBooker(mockUser2);
+        booking.setStatus(BookingStatus.WAITING);
+        booking.getItem().setOwner(mockUser1);
+        when(bookingRepository.findById(Mockito.any())).thenReturn(Optional.of(booking));
+        when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(booking.getItem().getOwner()));
+        bookingServiceImpl.updateBookingStatus(booking.getId(), booking.getItem().getOwner().getId(), false);
+        assertEquals(BookingStatus.REJECTED, booking.getStatus());
+        verify(bookingRepository, times(1)).findById(1L);
+    }
+
+    @Test
     @DisplayName("Тест testUpdateBookingStatus_BookingNotFound")
     void testUpdateBookingStatus_BookingNotFound() {
         when(bookingRepository.findById(1L)).thenReturn(Optional.empty());
         Exception exception = assertThrows(NotFoundException.class,
                 () -> bookingServiceImpl.updateBookingStatus(1L, 1L, true));
+        assertEquals("Бронирования с ID 1 не существует", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Тест testGetBooking_BookingNotFound")
+    void testGetBooking_BookingNotFound() {
+        when(bookingRepository.findById(1L)).thenReturn(Optional.empty());
+        Exception exception = assertThrows(NotFoundException.class,
+                () -> bookingServiceImpl.getBookingById(1L, 1L));
         assertEquals("Бронирования с ID 1 не существует", exception.getMessage());
     }
 
@@ -217,6 +240,26 @@ public class BookingServiceTest {
         when(bookingRepository.findById(Mockito.any())).thenReturn(Optional.of(booking));
         Exception exception = assertThrows(NotFoundException.class,
                 () -> bookingServiceImpl.updateBookingStatus(1L, 1L, true));
+        assertEquals("Пользователя с id 1 не существует", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Тест testGetUserBookings_UserOwnerNotFound")
+    void testGetUserBookings_UserOwnerNotFound() {
+        Booking booking = mockBooking1;
+        booking.setStatus(BookingStatus.WAITING);
+        Exception exception = assertThrows(NotFoundException.class,
+                () -> bookingServiceImpl.getUserBookings(1L, BookingState.FUTURE, 1, 2));
+        assertEquals("Пользователя с id 1 не существует", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Тест testGetOwnersBookings_UserOwnerNotFound")
+    void testGetOwnersBookings_UserOwnerNotFound() {
+        Booking booking = mockBooking1;
+        booking.setStatus(BookingStatus.WAITING);
+        Exception exception = assertThrows(NotFoundException.class,
+                () -> bookingServiceImpl.getOwnerBookings(1L, BookingState.FUTURE, 1, 2));
         assertEquals("Пользователя с id 1 не существует", exception.getMessage());
     }
 
@@ -247,6 +290,21 @@ public class BookingServiceTest {
         Exception exception = assertThrows(IllegalArgumentException.class,
                 () -> bookingServiceImpl.updateBookingStatus(1L, 1L, false));
         assertEquals("Невозможно изменить статус. Статус бронирования уже изменен на APPROVED или REJECTED.",
+                exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Тест testUpdateBookingStatus_InvalidStatus2")
+    void testUpdateBookingStatus_InvalidStatus2() {
+        Booking booking = mockBooking1;
+        booking.setStatus(BookingStatus.CANCELED);
+        when(bookingRepository.findById(Mockito.any())).thenReturn(Optional.of(booking));
+        when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(mockUser1));
+        assertThrows(IllegalArgumentException.class,
+                () -> bookingServiceImpl.updateBookingStatus(1L, 1L, false));
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> bookingServiceImpl.updateBookingStatus(1L, 1L, false));
+        assertEquals("Невозможно изменить статус. Статус бронирования можно изменить только для Booking, в статусе WAITING.",
                 exception.getMessage());
     }
 

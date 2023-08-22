@@ -77,6 +77,13 @@ public class UserServiceTest {
     }
 
     @Test
+    public void testGetUserByIdNotFound() {
+        Exception exception = assertThrows(NotFoundException.class,
+                () -> userService.getUserById(1L));
+        assertEquals("Пользователя с id 1 не существует", exception.getMessage());
+    }
+
+    @Test
     @DisplayName("Тест на создание User")
     public void testSaveNewUser() {
         UserDto userDto = UserMapper.toUserDto(mockUser1);
@@ -85,6 +92,17 @@ public class UserServiceTest {
         assertNotNull(result);
         assertEquals(userDto.getEmail(), result.getEmail());
         verify(userRepository, times(1)).save(any());
+    }
+
+    @Test
+    @DisplayName("Тест на создание User")
+    public void testSaveNewUserEmailDuplicate() {
+        UserDto userDto = new UserDto();
+        userDto.setEmail("duplicate@example.com");
+        when(userRepository.save(any())).thenThrow(EmailDuplicateException.class);
+        assertThrows(EmailDuplicateException.class, () -> {
+            userService.saveNewUser(userDto);
+        });
     }
 
     @Test
