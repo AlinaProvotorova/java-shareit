@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,18 +13,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
+import ru.practicum.shareit.exceptions.UnknownStateException;
 import ru.practicum.shareit.utils.Constants;
+import ru.practicum.shareit.utils.Marker;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/bookings")
+@Validated
 public class BookingController {
     private final BookingService bookingService;
 
+    @Validated(Marker.OnCreate.class)
     @PostMapping
     public BookingResponseDto createBooking(
             @Valid @RequestBody BookingRequestDto bookingRequest,
@@ -52,22 +57,34 @@ public class BookingController {
 
     @GetMapping
     public List<BookingResponseDto> getUserBookings(
-            @RequestParam(required = false, defaultValue = "ALL") String state,
-            @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId
+            @RequestParam(defaultValue = "ALL") String state,
+            @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId,
+            @RequestParam(defaultValue = "0") @PositiveOrZero int from,
+            @RequestParam(defaultValue = "10") @Positive int size
     ) {
-        return bookingService.getUserBookings(userId, state);
+        BookingState bookingState;
+        try {
+            bookingState = BookingState.valueOf(state);
+        } catch (IllegalArgumentException ex) {
+            throw new UnknownStateException(state);
+        }
+        return bookingService.getUserBookings(userId, bookingState, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingResponseDto> getOwnerBookings(
-            @RequestParam(required = false, defaultValue = "ALL") String state,
-            @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId
+            @RequestParam(defaultValue = "ALL") String state,
+            @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId,
+            @RequestParam(defaultValue = "0") @PositiveOrZero int from,
+            @RequestParam(defaultValue = "10") @Positive int size
     ) {
-        return bookingService.getOwnerBookings(userId, state);
+        BookingState bookingState;
+        try {
+            bookingState = BookingState.valueOf(state);
+        } catch (IllegalArgumentException ex) {
+            throw new UnknownStateException(state);
+        }
+        return bookingService.getOwnerBookings(userId, bookingState, from, size);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteBookingById(@PathVariable Long id) {
-        bookingService.deleteById(id);
-    }
 }

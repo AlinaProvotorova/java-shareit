@@ -64,6 +64,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -154,6 +159,7 @@
 								<goal>prepare-agent</goal>
 							</goals>
 						</execution>
+
 						<execution>
 							<id>jacoco-check</id>
 							<goals>

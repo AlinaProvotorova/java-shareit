@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
@@ -24,6 +25,7 @@ import javax.persistence.Table;
 @Table(name = "items", schema = "public")
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +37,9 @@ public class Item {
     @Column(name = "is_available", nullable = false)
     private Boolean available;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ToString.Exclude
     private User owner;
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     private ItemRequest request;
 }

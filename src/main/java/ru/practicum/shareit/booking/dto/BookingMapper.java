@@ -15,6 +15,14 @@ public class BookingMapper {
                 .build();
     }
 
+    public static BookingRequestDto bookingToRequest(Booking booking) {
+        return BookingRequestDto.builder()
+                .start(booking.getStart())
+                .end(booking.getEnd())
+                .itemId(booking.getItem().getId())
+                .build();
+    }
+
 
     public static BookingResponseDto bookingToResponse(Booking booking) {
         return booking == null ? null : BookingResponseDto.builder()
@@ -36,4 +44,5 @@ public class BookingMapper {
                 .bookerId(booking.getBooker().getId())
                 .build();
     }
+
 }
