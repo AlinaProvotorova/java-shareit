@@ -19,7 +19,6 @@ import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.utils.Constants;
 import ru.practicum.shareit.utils.Marker;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
@@ -63,18 +62,17 @@ public class ItemController {
         return itemService.searchBy(text, userId, from, size);
     }
 
-    @Validated(Marker.OnCreate.class)
     @PostMapping
     public ItemDto saveNewItem(@RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId,
-                               @Valid @RequestBody ItemDto item) {
+                               @Validated(Marker.OnCreate.class) @RequestBody ItemDto item) {
         return itemService.saveNewItem(userId, item);
     }
 
-    @Validated(Marker.OnUpdate.class)
+
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable @Positive Long itemId,
                               @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId,
-                              @RequestBody ItemDto item) {
+                              @Validated(Marker.OnUpdate.class) @RequestBody ItemDto item) {
         return itemService.updateItem(itemId, userId, item);
     }
 
@@ -87,11 +85,11 @@ public class ItemController {
         return String.format("Вещь для бронирования с ID %d удалена", id);
     }
 
-    @Validated(Marker.OnCreate.class)
+
     @PostMapping("/{itemId}/comment")
     public CommentResponseDto addComment(@PathVariable("itemId") @Positive long itemId,
                                          @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) @Positive Long userId,
-                                         @Valid @RequestBody CommentDto commentDto) {
+                                         @Validated(Marker.OnCreate.class) @RequestBody CommentDto commentDto) {
         return itemService.addComment(commentDto, itemId, userId);
     }
 }

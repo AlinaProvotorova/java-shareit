@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.utils.Marker;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
@@ -39,14 +38,12 @@ public class UserController {
     }
 
     @PostMapping
-    @Validated({Marker.OnCreate.class})
-    public UserDto saveNewUser(@RequestBody @Valid UserDto user) {
+    public UserDto saveNewUser(@RequestBody @Validated({Marker.OnCreate.class}) UserDto user) {
         return userService.saveNewUser(user);
     }
 
     @PatchMapping("/{id}")
-    @Validated({Marker.OnUpdate.class})
-    public UserDto updateUser(@PathVariable @Positive Long id, @RequestBody @Valid UserDto user) {
+    public UserDto updateUser(@PathVariable @Positive Long id, @RequestBody @Validated({Marker.OnUpdate.class}) UserDto user) {
         return userService.updateUser(id, user);
     }
 

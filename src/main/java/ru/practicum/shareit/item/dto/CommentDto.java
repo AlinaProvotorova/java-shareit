@@ -14,6 +14,6 @@ public class CommentDto {
     @NotNull(groups = {Marker.OnUpdate.class})
     private Long id;
     @NotBlank(groups = {Marker.OnCreate.class})
-    @Size(max = 1000)
+    @Size(max = 1000, groups = {Marker.OnUpdate.class, Marker.OnCreate.class})
     private String text;
 }
