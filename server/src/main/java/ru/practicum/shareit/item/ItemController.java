@@ -72,12 +72,11 @@ public class ItemController {
     }
 
     @DeleteMapping("/{id}")
-    public String deleteItem(
+    public void deleteItem(
             @PathVariable Long id,
             @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) Long userId
     ) {
         itemService.deleteItem(id, userId);
-        return String.format("Вещь для бронирования с ID %d удалена", id);
     }
 
 

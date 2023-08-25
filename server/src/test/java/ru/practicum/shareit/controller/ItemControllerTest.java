@@ -206,31 +206,6 @@ public class ItemControllerTest {
                 .getContentAsString();
     }
 
-//    @Test
-//    @DisplayName("Тест на эндпоинт @PostMapping создания Comment с невалидными данными")
-//    @SneakyThrows
-//    void addCommentTest() {
-//        Comment comment = Comment.builder()
-//                .id(1L)
-//                .text(null)
-//                .item(mockItem1)
-//                .author(mockUser1)
-//                .build();
-//        CommentResponseDto commentResponseDto = CommentMapper.toResponseDto(comment);
-//        when(itemService.addComment(ArgumentMatchers.any(), ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong()))
-//                .thenReturn(commentResponseDto);
-//        mockMvc.perform(MockMvcRequestBuilders.post("/items/{itemId}/comment", 1L)
-//                        .header(Constants.HEADER_USER_ID_VALUE, 1L)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(commentResponseDto))
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-//                .andReturn()
-//                .getResponse()
-//                .getContentAsString();
-//    }
-
     @Test
     @DisplayName("Тест на ItemMapper с исключением Dto.")
     public void dtoToItemNullDtoTest() {

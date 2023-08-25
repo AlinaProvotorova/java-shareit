@@ -66,7 +66,7 @@ public class UserServiceTest {
 
     @Test
     public void testGetUserById() {
-        long userId = 1L;
+        Long userId = 1L;
         User user = new User();
         user.setId(userId);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -140,7 +140,7 @@ public class UserServiceTest {
 
     @Test
     public void testDeleteUser() {
-        long userId = 1L;
+        Long userId = 1L;
         User user = new User();
         user.setId(userId);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));

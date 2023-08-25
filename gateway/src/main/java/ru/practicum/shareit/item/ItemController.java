@@ -80,7 +80,7 @@ public class ItemController {
 
 
     @PostMapping("/{itemId}/comment")
-    public ResponseEntity<Object> addComment(@PathVariable("itemId") @Positive long itemId,
+    public ResponseEntity<Object> addComment(@PathVariable("itemId") @Positive Long itemId,
                                              @RequestHeader(value = Constants.HEADER_USER_ID_VALUE) @Positive Long userId,
                                              @Validated(Marker.OnCreate.class) @RequestBody CommentDto commentDto) {
         return itemClient.addComment(itemId, userId, commentDto);

@@ -85,27 +85,6 @@ public class BookingControllerTest {
         Mockito.verify(bookingService).createBooking(bookingRequestDto, 1L);
     }
 
-//    @Test
-//    @DisplayName("Тест на эндпоинт @PostMapping создания Booking с невалидными данными")
-//    @SneakyThrows
-//    void bookingCreateValidationTest() {
-//        BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
-//                .itemId(null)
-//                .start(LocalDateTime.now().plusMinutes(30))
-//                .end(LocalDateTime.now().plusMinutes(20))
-//                .build();
-//
-//        mockMvc.perform(post("/bookings")
-//                        .header(HEADER_USER_ID_VALUE, 1L)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(bookingRequestDto))
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isBadRequest())
-//                .andDo(print());
-//    }
-
-
     @Test
     @DisplayName("Тест на эндпоинт @PatchMapping подтврждение Booking от Owner")
     @SneakyThrows

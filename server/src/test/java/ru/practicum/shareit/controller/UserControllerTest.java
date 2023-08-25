@@ -94,26 +94,6 @@ public class UserControllerTest {
                 .getContentAsString();
     }
 
-//    @Test
-//    @DisplayName("Тест на эндпоинт  @PostMapping создания нового User с некорректным форматом почты")
-//    void saveNewUserValidate() throws Exception {
-//        UserDto userDto = UserMapper.toUserDto(mockUser1);
-//        userDto.setEmail("email");
-//        when(userService.saveNewUser(any(UserDto.class))).thenReturn(userDto);
-//        userService.saveNewUser(userDto);
-//        mockMvc.perform(
-//                        post("/users", 1L)
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                                .content(objectMapper.writeValueAsString(userDto))
-//                                .characterEncoding(StandardCharsets.UTF_8)
-//                                .accept(MediaType.APPLICATION_JSON)
-//                )
-//                .andExpect(status().isBadRequest())
-//                .andReturn()
-//                .getResponse()
-//                .getContentAsString();
-//    }
-
     @Test
     @DisplayName("Тест на эндпоинт @PatchMapping на одновление User по ID")
     @SneakyThrows

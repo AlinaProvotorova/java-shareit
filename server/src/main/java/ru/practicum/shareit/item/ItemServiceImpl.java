@@ -95,8 +95,9 @@ public class ItemServiceImpl implements ItemService {
                 () -> new NotFoundException(String.format(ITEM_NOT_FOUND, id))
         );
         List<Comment> comments = commentRepository.findAllByItem_Id(id);
+        System.out.println(LocalDateTime.now());
         Booking lastBooking = bookingRepository.findFirstByItemIdAndStartBeforeAndStatusOrderByEndDesc(item.getId(),
-                LocalDateTime.now(), BookingStatus.APPROVED);
+                LocalDateTime.now().plusSeconds(1), BookingStatus.APPROVED);
         Booking nextBooking = bookingRepository.findFirstByItemIdAndStartAfterAndStatusOrderByStartAsc(item.getId(),
                 LocalDateTime.now(), BookingStatus.APPROVED);
         if (item.getOwner().getId().equals(userId)) {

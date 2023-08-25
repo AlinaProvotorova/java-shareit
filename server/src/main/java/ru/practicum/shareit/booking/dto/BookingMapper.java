@@ -36,10 +36,7 @@ public class BookingMapper {
     }
 
     public static BookingShortDto bookingToShort(Booking booking) {
-        if (booking == null) {
-            return null;
-        }
-        return BookingShortDto.builder()
+        return booking == null ? null : BookingShortDto.builder()
                 .id(booking.getId())
                 .bookerId(booking.getBooker().getId())
                 .build();

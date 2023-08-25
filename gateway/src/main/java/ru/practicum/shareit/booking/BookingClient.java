@@ -36,13 +36,13 @@ public class BookingClient extends BaseClient {
         return patch("/" + bookingId + "?approved=" + approved, userId);
     }
 
-    public ResponseEntity<Object> getBookingById(long bookingId, Long userId) {
+    public ResponseEntity<Object> getBookingById(Long bookingId, Long userId) {
         return get("/" + bookingId, userId);
     }
 
     public ResponseEntity<Object> getUserBookings(String state, Long userId, int from, int size) {
         BookingState bookingState = BookingState.from(state)
-                .orElseThrow(() -> new UnknownStateException("Неподдерживаемый параметр BookingState"));
+                .orElseThrow(() -> new UnknownStateException(state));
         Map<String, Object> parameters = Map.of(
                 "state", bookingState.name(),
                 "from", from,
@@ -53,7 +53,7 @@ public class BookingClient extends BaseClient {
 
     public ResponseEntity<Object> getOwnerBookings(String state, Long userId, int from, int size) {
         BookingState bookingState = BookingState.from(state)
-                .orElseThrow(() -> new UnknownStateException("Неподдерживаемый параметр BookingState"));
+                .orElseThrow(() -> new UnknownStateException(state));
         Map<String, Object> parameters = Map.of(
                 "state", bookingState.name().toUpperCase(),
                 "from", from,

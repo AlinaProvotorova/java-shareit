@@ -69,7 +69,7 @@ public class ItemRequestServiceImp implements ItemRequestService {
 
 
     @Override
-    public List<ItemRequestResponseDto> getAllRequests(int from, int size, long userId) {
+    public List<ItemRequestResponseDto> getAllRequests(int from, int size, Long userId) {
         userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(String.format(USER_NOT_FOUND, userId))
         );
@@ -98,7 +98,7 @@ public class ItemRequestServiceImp implements ItemRequestService {
         return ItemRequestMapper.listItemResponseToItemRequestResponse(itemRequest, items);
     }
 
-    private List<ItemRequestResponseDto> processItemRequests(List<ItemRequest> requests, long userId) {
+    private List<ItemRequestResponseDto> processItemRequests(List<ItemRequest> requests, Long userId) {
         if (requests.isEmpty()) {
             log.info("Получен пустой список ItemRequest для User c ID {} - у него нет запросов.", userId);
             return List.of();
