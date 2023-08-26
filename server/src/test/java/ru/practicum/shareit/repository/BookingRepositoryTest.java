@@ -32,9 +32,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 })
 class BookingRepositoryTest {
     @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
     @Autowired
-    BookingRepository bookingRepository;
+    private final BookingRepository bookingRepository;
 
     @Test
     void findBookingByBookerOrderByStartDesc() {

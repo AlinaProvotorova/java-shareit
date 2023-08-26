@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ItemRequestRepositoryTest {
 
     @Autowired
-    ItemRequestRepository itemRequestRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Test
     void findAllByRequester_idOrderByCreatedAsc() {

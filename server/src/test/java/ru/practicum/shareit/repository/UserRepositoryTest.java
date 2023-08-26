@@ -1,5 +1,6 @@
 package ru.practicum.shareit.repository;
 
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -18,14 +19,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @Transactional
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserRepositoryTest {
 
     User user = User.builder()
             .name("Test")
             .email("test@yandex.ru")
             .build();
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Test
     @DisplayName("Тест на создание нового User")

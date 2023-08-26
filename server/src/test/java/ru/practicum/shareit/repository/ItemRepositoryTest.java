@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ItemRepositoryTest {
 
     @Autowired
-    ItemRepository itemRepository;
+    private final ItemRepository itemRepository;
 
     @Test
     void findAllByOwnerId() {

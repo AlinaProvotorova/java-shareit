@@ -40,10 +40,10 @@ import static ru.practicum.shareit.utils.Constants.HEADER_USER_ID_VALUE;
 @DisplayName("Тесты класса BookingController")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class BookingControllerTest {
-    final ObjectMapper objectMapper;
-    final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+    private final MockMvc mockMvc;
     @MockBean
-    BookingService bookingService;
+    private final BookingService bookingService;
 
     private static final User mockUser1 = User.builder().id(1L).name("Ivan").email("ivan@mail.ru").build();
     private static final User mockUser2 = User.builder().id(2L).name("Petr").email("petr@mail.ru").build();

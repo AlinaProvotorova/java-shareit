@@ -29,10 +29,10 @@ import static ru.practicum.shareit.utils.Constants.HEADER_USER_ID_VALUE;
 @DisplayName("Тесты класса BookingController")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class BookingControllerTest {
-    final ObjectMapper objectMapper;
-    final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+    private final MockMvc mockMvc;
     @MockBean
-    final BookingClient bookingClient;
+    private final BookingClient bookingClient;
 
     @Test
     @DisplayName("Тест на эндпоинт @PostMapping создания Booking с невалидными данными")

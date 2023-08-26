@@ -28,10 +28,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @DisplayName("Тесты класса ItemController")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemControllerTest {
-    final ObjectMapper objectMapper;
-    final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+    private final MockMvc mockMvc;
     @MockBean
-    final ItemClient itemClient;
+    private final ItemClient itemClient;
 
     @Test
     @DisplayName("Тест на эндпоинт @PostMapping создания Comment с невалидными данными")

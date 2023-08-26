@@ -34,10 +34,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Тесты класса UserController")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserControllerTest {
-    final ObjectMapper objectMapper;
-    final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+    private final MockMvc mockMvc;
     @MockBean
-    UserService userService;
+    private final UserService userService;
 
     private static final User mockUser1 = User.builder().id(1L).name("Ivan").email("ivan@mail.ru").build();
     private static final User mockUser2 = User.builder().id(2L).name("Petr").email("petr@mail.ru").build();

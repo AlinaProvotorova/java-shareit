@@ -37,10 +37,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Тесты класса ItemRequestController")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemRequestControllerTest {
-    final ObjectMapper objectMapper;
-    final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+    private final MockMvc mockMvc;
     @MockBean
-    ItemRequestService itemRequestService;
+    private final ItemRequestService itemRequestService;
 
     private static final User mockUser1 = User.builder().id(1L).name("Ivan").email("ivan@mail.ru").build();
     private static final User mockUser2 = User.builder().id(2L).name("Petr").email("petr@mail.ru").build();
