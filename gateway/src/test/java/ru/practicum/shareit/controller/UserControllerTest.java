@@ -28,7 +28,7 @@ public class UserControllerTest {
     final ObjectMapper objectMapper;
     final MockMvc mockMvc;
     @MockBean
-    UserClient userClient;
+    final UserClient userClient;
 
 
     @Test

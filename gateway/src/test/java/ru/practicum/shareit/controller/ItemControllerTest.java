@@ -31,7 +31,7 @@ public class ItemControllerTest {
     final ObjectMapper objectMapper;
     final MockMvc mockMvc;
     @MockBean
-    ItemClient itemClient;
+    final ItemClient itemClient;
 
     @Test
     @DisplayName("Тест на эндпоинт @PostMapping создания Comment с невалидными данными")

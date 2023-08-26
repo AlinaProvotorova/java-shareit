@@ -32,7 +32,7 @@ public class BookingControllerTest {
     final ObjectMapper objectMapper;
     final MockMvc mockMvc;
     @MockBean
-    BookingClient bookingClient;
+    final BookingClient bookingClient;
 
     @Test
     @DisplayName("Тест на эндпоинт @PostMapping создания Booking с невалидными данными")
